@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Store - Cửa Hàng Thiết Bị Âm Thanh</title>
-
-    <!-- DƯỚI ĐÂY LÀ PHẦN CSS TRANG TRÍ GIAO DIỆN -->
     <style>
-        /* Reset CSS: Xóa khoảng cách mặc định của trình duyệt */
+        /* ==========================================================
+           1. RESET CSS & CÀI ĐẶT CHUNG CHO TOÀN TRANG
+           ========================================================== */
         * {
             margin: 0;
             padding: 0;
@@ -16,136 +16,294 @@
         }
 
         body {
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #eaeded; /* Màu nền xám nhạt hiện đại */
+            color: #0f1111;
         }
 
-        /* Khung chứa trung tâm giúp gom gọn nội dung vào giữa màn hình */
-        .container {
-            width: 85%;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        /* ==================== CSS CHO PHẦN HEADER ==================== */
-        header {
-            background-color: #111111; /* Nền màu đen sang trọng */
+        /* ==========================================================
+           2. THANH ĐIỀU HƯỚNG CHÍNH (MAIN HEADER)
+           ========================================================== */
+        .main-header {
+            background-color: #131921; /* Màu nền tối sang trọng */
             color: #ffffff;
-            padding: 15px 0;
-        }
-
-        .header-box {
-            display: flex;
-            justify-content: space-between; /* Căn logo bên trái, menu bên phải */
+            padding: 10px 20px;
+            display: flex; /* Sử dụng Flexbox để căn chỉnh ngang */
             align-items: center; /* Căn giữa theo chiều dọc */
+            justify-content: space-between; /* Đẩy các phần tử sang 2 bên */
+            gap: 15px;
         }
 
-        /* Trang trí cho Logo */
-        .logo a {
-            color: #00d2ff; /* Màu xanh nổi bật */
+        /* --- Khối Logo & Hiệu ứng uốn lượn --- */
+        .logo-box {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: #ffffff;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+
+            .logo-box:hover {
+                border-color: #ffffff; /* Hiệu ứng viền trắng khi rê chuột */
+            }
+
+        .logo-text {
             font-size: 22px;
             font-weight: bold;
-            text-decoration: none;
+            letter-spacing: -0.5px;
+            color: #ff3333; /* Màu đỏ chủ đạo của thương hiệu */
         }
 
-        /* Trang trí cho Menu điều hướng */
-        nav ul {
+            .logo-text span {
+                color: #ff3333;
+            }
+
+        .logo-curve {
+            width: 100%;
+            height: 4px;
+            border-bottom: 3px solid #ff3333; /* Tạo đường cong màu đỏ dưới logo */
+            border-radius: 50%;
+            margin-top: -3px;
+        }
+
+        /* --- Khối Thanh tìm kiếm sản phẩm (Search Bar) --- */
+        .search-container {
             display: flex;
-            list-style: none; /* Bỏ chấm tròn của danh sách */
-            gap: 25px; /* Khoảng cách giữa các mục menu */
+            flex: 1; /* Tự động co giãn chiếm không gian ở giữa */
+            max-width: 650px;
+            height: 40px;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
-            nav ul li a {
-                color: #ffffff;
-                text-decoration: none;
-                font-size: 14px;
-                transition: color 0.3s;
+        .search-category {
+            background-color: #f3f3f3;
+            border: none;
+            padding: 0 10px;
+            color: #555;
+            font-size: 13px;
+            cursor: pointer;
+            border-right: 1px solid #ddd;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0 12px;
+            border: none;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-btn {
+            background-color: #ff3333; /* Nút tìm kiếm màu đỏ nổi bật */
+            border: none;
+            width: 45px;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+            .search-btn:hover {
+                background-color: #cc0000; /* Đổi màu đậm hơn khi hover */
             }
 
-                /* Hiệu ứng khi rê chuột vào menu */
-                nav ul li a:hover {
-                    color: #00d2ff;
-                }
-
-        /* ==================== CSS CHO PHẦN CONTENT (NỘI DUNG MẪU) ==================== */
-        main {
-            padding: 50px 0;
-            text-align: center;
-            min-height: 350px;
+        /* --- Khối Tài khoản & Giỏ hàng ở góc phải --- */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .content-box {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-            .content-box h2 {
-                color: #00d2ff;
-                margin-bottom: 10px;
-            }
-
-        /* ==================== CSS CHO PHẦN FOOTER ==================== */
-        footer {
-            background-color: #111111; /* Nền màu đen đồng bộ với Header */
-            color: #bbbbbb;
-            padding: 30px 0;
-            text-align: center;
+        .nav-item {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            border-radius: 2px;
             font-size: 13px;
         }
 
-            footer p {
-                margin-bottom: 6px;
+            .nav-item:hover {
+                border-color: #ffffff;
             }
+
+            .nav-item strong {
+                display: block;
+                font-size: 14px;
+            }
+
+        .cart-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+        }
+
+            .cart-box:hover {
+                border-color: #ffffff;
+            }
+
+        .cart-count {
+            color: #ff3333;
+            font-size: 16px;
+        }
+
+        /* ==========================================================
+           3. THANH ĐIỀU HƯỚNG PHỤ (SUB-HEADER)
+           ========================================================== */
+        .sub-header {
+            background-color: #232f3e; /* Tông màu tối phụ họa cho header chính */
+            color: #ffffff;
+            padding: 8px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+            .sub-header a {
+                color: #ffffff;
+                text-decoration: none;
+                padding: 4px 8px;
+                border: 1px solid transparent;
+            }
+
+                .sub-header a:hover {
+                    border-color: #ffffff;
+                }
+
+        /* ==========================================================
+           4. PHẦN NỘI DUNG CHÍNH (MAIN CONTENT)
+           ========================================================== */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #232f3e, #37475a);
+            color: #ffffff;
+            padding: 40px 20px;
+            border-radius: 4px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .hero-banner h1 {
+                font-size: 28px;
+                margin-bottom: 10px;
+                color: #ffffff;
+            }
+
+            .hero-banner p {
+                color: #ff3333;
+                font-size: 16px;
+            }
+
+        /* ==========================================================
+           5. PHẦN CHÂN TRANG (FOOTER)
+           ========================================================== */
+        footer {
+            background-color: #232f3e;
+            color: #dddddd;
+            margin-top: 50px;
+        }
+
+        .back-to-top {
+            background-color: #37475a;
+            color: #ffffff;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+            .back-to-top:hover {
+                background-color: #485769;
+            }
+
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.8;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ================================================================= -->
-    <!-- 1. PHẦN HEADER (ĐẦU TRANG)                                        -->
-    <!-- ================================================================= -->
-    <header>
-        <div class="container header-box">
-            <!-- Tên Logo cửa hàng -->
-            <div class="logo">
-                <a href="#">Audio Store</a>
-            </div>
+    <!-- ================= BẮT ĐẦU HEADER CHÍNH ================= -->
+    <header class="main-header">
+        <!-- Logo thương hiệu & Slogan -->
+        <a href="#" class="logo-box">
+            <div class="logo-text">Audio<span>Store</span></div>
+            <div class="logo-curve"></div>
+        </a>
 
-            <!-- Thanh điều hướng (Menu) -->
-            <nav>
-                <ul>
-                    <li><a href="#">Trang Chủ</a></li>
-                    <li><a href="#">Loa Bluetooth</a></li>
-                    <li><a href="#">Tai Nghe</a></li>
-                    <li><a href="#">Liên Hệ</a></li>
-                </ul>
-            </nav>
+        <!-- Thanh tìm kiếm (Bao gồm ô chọn danh mục, ô nhập văn bản và nút bấm) -->
+        <div class="search-container">
+            <select class="search-category">
+                <option>Tất cả danh mục</option>
+                <option>Loa Bluetooth</option>
+                <option>Tai Nghe</option>
+            </select>
+            <input type="text" class="search-input" placeholder="Tìm kiếm thiết bị âm thanh, loa, tai nghe...">
+            <button class="search-btn">🔍</button>
+        </div>
+
+        <!-- Khu vực tiện ích người dùng (Tài khoản & Giỏ hàng) -->
+        <div class="header-actions">
+            <a href="#" class="nav-item">
+                <span>Xin chào, Đăng nhập</span>
+                <strong>Tài khoản & Đơn hàng</strong>
+            </a>
+            <a href="#" class="cart-box">
+                🛒 Giỏ hàng <span class="cart-count">(0)</span>
+            </a>
         </div>
     </header>
-
-
-    <!-- ================================================================= -->
-    <!-- 2. PHẦN NỘI DUNG GIỮA (ĐÂY LÀ PHẦN TRANG CHỦ CỦA BẠN CÙNG NHÓM)  -->
-    <!-- ================================================================= -->
-    <main class="container">
-        <div class="content-box">
-            <h2>Audio Store - Cửa Hàng Âm Thanh Chính Hãng</h2>
-            <p>(Nội dung danh sách sản phẩm trang chủ sẽ do bạn cùng nhóm ghép vào đây)</p>
+    <!-- ================= KẾT THÚC HEADER CHÍNH ================= -->
+    <!-- ================= BẮT ĐẦU MENU PHỤ (SUB-HEADER) ================= -->
+    <nav class="sub-header">
+        <a href="#"><strong>☰ Tất Cả Danh Mục</strong></a>
+        <a href="#">Trang Chủ</a>
+        <a href="#">Loa Bluetooth Hot</a>
+        <a href="#">Tai Nghe Chống Ồn</a>
+        <a href="#">Khuyến Mãi</a>
+        <a href="#">Hỗ Trợ Khách Hàng</a>
+    </nav>
+    <!-- ================= KẾT THÚC MENU PHỤ ================= -->
+    <!-- ================= BẮT ĐẦU NỘI DUNG CHÍNH (MAIN CONTENT) ================= -->
+    <div class="container">
+        <div class="hero-banner">
+            <h1>Audio Store - World of Sound</h1>
+            <p>Trải nghiệm âm thanh đỉnh cao với các dòng Loa & Tai nghe chính hãng</p>
         </div>
-    </main>
-
-
-    <!-- ================================================================= -->
-    <!-- 3. PHẦN FOOTER (CHÂN TRANG)                                       -->
-    <!-- ================================================================= -->
+    </div>
+    <!-- ================= KẾT THÚC NỘI DUNG CHÍNH ================= -->
+    <!-- ================= BẮT ĐẦU CHÂN TRANG (FOOTER) ================= -->
     <footer>
-        <div class="container">
+        <a href="#" class="back-to-top">Về đầu trang</a>
+        <div class="footer-content">
             <p><strong>Cửa hàng thiết bị âm thanh Audio Store</strong></p>
-            <p>Chuyên cung cấp các loại loa, tai nghe Wireless, Bluetooth, Corded chính hãng.</p>
+            <p>Chuyên cung cấp các loại loa, tai nghe Wireless, Bluetooth chính hãng.</p>
             <p>&copy; 2026 Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC.</p>
         </div>
     </footer>
+    <!-- ================= KẾT THÚC CHÂN TRANG ================= -->
 
 </body>
 </html>
