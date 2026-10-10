@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Store - Cửa Hàng Thiết Bị Âm Thanh</title>
+
+    <!-- DƯỚI ĐÂY LÀ PHẦN CSS TRANG TRÍ GIAO DIỆN -->
+    <style>
+        /* Reset CSS: Xóa khoảng cách mặc định của trình duyệt */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        /* Khung chứa trung tâm giúp gom gọn nội dung vào giữa màn hình */
+        .container {
+            width: 85%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ==================== CSS CHO PHẦN HEADER ==================== */
+        header {
+            background-color: #111111; /* Nền màu đen sang trọng */
+            color: #ffffff;
+            padding: 15px 0;
+        }
+
+        .header-box {
+            display: flex;
+            justify-content: space-between; /* Căn logo bên trái, menu bên phải */
+            align-items: center; /* Căn giữa theo chiều dọc */
+        }
+
+        /* Trang trí cho Logo */
+        .logo a {
+            color: #00d2ff; /* Màu xanh nổi bật */
+            font-size: 22px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* Trang trí cho Menu điều hướng */
+        nav ul {
+            display: flex;
+            list-style: none; /* Bỏ chấm tròn của danh sách */
+            gap: 25px; /* Khoảng cách giữa các mục menu */
+        }
+
+            nav ul li a {
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 14px;
+                transition: color 0.3s;
+            }
+
+                /* Hiệu ứng khi rê chuột vào menu */
+                nav ul li a:hover {
+                    color: #00d2ff;
+                }
+
+        /* ==================== CSS CHO PHẦN CONTENT (NỘI DUNG MẪU) ==================== */
+        main {
+            padding: 50px 0;
+            text-align: center;
+            min-height: 350px;
+        }
+
+        .content-box {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .content-box h2 {
+                color: #00d2ff;
+                margin-bottom: 10px;
+            }
+
+        /* ==================== CSS CHO PHẦN FOOTER ==================== */
+        footer {
+            background-color: #111111; /* Nền màu đen đồng bộ với Header */
+            color: #bbbbbb;
+            padding: 30px 0;
+            text-align: center;
+            font-size: 13px;
+        }
+
+            footer p {
+                margin-bottom: 6px;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================================= -->
+    <!-- 1. PHẦN HEADER (ĐẦU TRANG) - DO BẠN TRẦN MINH LỢI THỰC HIỆN        -->
+    <!-- ================================================================= -->
+    <header>
+        <div class="container header-box">
+            <!-- Tên Logo cửa hàng -->
+            <div class="logo">
+                <a href="#">Audio Store</a>
+            </div>
+
+            <!-- Thanh điều hướng (Menu) -->
+            <nav>
+                <ul>
+                    <li><a href="#">Trang Chủ</a></li>
+                    <li><a href="#">Loa Bluetooth</a></li>
+                    <li><a href="#">Tai Nghe</a></li>
+                    <li><a href="#">Liên Hệ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+
+    <!-- ================================================================= -->
+    <!-- 2. PHẦN NỘI DUNG GIỮA (ĐÂY LÀ PHẦN TRANG CHỦ CỦA BẠN CÙNG NHÓM)  -->
+    <!-- ================================================================= -->
+    <main class="container">
+        <div class="content-box">
+            <h2>Audio Store - Cửa Hàng Âm Thanh Chính Hãng</h2>
+            <p>(Nội dung danh sách sản phẩm trang chủ sẽ do bạn cùng nhóm ghép vào đây)</p>
+        </div>
+    </main>
+
+
+    <!-- ================================================================= -->
+    <!-- 3. PHẦN FOOTER (CHÂN TRANG)                                       -->
+    <!-- ================================================================= -->
+    <footer>
+        <div class="container">
+            <p><strong>Cửa hàng thiết bị âm thanh Audio Store</strong></p>
+            <p>Chuyên cung cấp các loại loa, tai nghe Wireless, Bluetooth, Corded chính hãng.</p>
+            <p>&copy; 2026 Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
