@@ -1,39 +1,147 @@
-﻿<!DOCTYPE html>
-<html>
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewBag.Title - Audio Store</title>
+
+    <link href="@Url.Content("~/Content/bootstrap.min.css")"
+          rel="stylesheet" />
+
+    <link href="@Url.Content("~/Content/Site.css")"
+          rel="stylesheet" />
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #222222;
+        }
+
+        .audio-navbar {
+            background-color: #171717;
+            padding: 15px 0;
+        }
+
+            .audio-navbar .navbar-brand {
+                color: #ffc107;
+                font-size: 24px;
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+            .audio-navbar .nav-link {
+                color: #ffffff;
+                text-decoration: none;
+                padding: 10px 14px;
+                display: inline-block;
+            }
+
+                .audio-navbar .nav-link:hover {
+                    color: #ffc107;
+                }
+
+        .audio-menu {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .audio-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .audio-footer {
+            margin-top: 40px;
+            padding: 24px 10px;
+            text-align: center;
+            background-color: #f3f3f3;
+            color: #666666;
+        }
+
+        @@media (max-width: 600px) {
+            .audio-menu {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .audio-links {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+    <header class="audio-navbar">
         <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+            <div class="audio-menu">
+
+                <a class="navbar-brand"
+                   href="@Url.Action("Index", "Home")">
+                    AUDIO STORE
+                </a>
+
+                <ul class="audio-links">
+                    <li>
+                        <a class="nav-link"
+                           href="@Url.Action("Index", "Home")">
+                            Trang chủ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link"
+                           href="@Url.Action("Index", "Home")#products">
+                            Sản phẩm
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link"
+                           href="@Url.Action("Index", "Home")#about">
+                            Giới thiệu
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link"
+                           href="@Url.Action("Login", "Account")">
+                            Đăng nhập
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link"
+                           href="@Url.Action("Register", "Account")">
+                            Đăng ký
+                        </a>
+                    </li>
                 </ul>
+
             </div>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    </header>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="audio-footer">
+        <p>© 2026 Audio Store - Cửa hàng thiết bị âm thanh</p>
+    </footer>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>
