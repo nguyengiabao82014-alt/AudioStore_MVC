@@ -1,0 +1,78 @@
+﻿@{
+    ViewBag.Title = "Giỏ hàng";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Giỏ Hàng Của Bạn</h2>
+    <table class="table table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="cart-item">
+                <td>Tai nghe không dây</td>
+                <td class="unit-price" data-price="1290000">1.290.000đ</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-secondary decrease">-</button>
+                    <span class="mx-2 quantity">1</span>
+                    <button type="button" class="btn btn-sm btn-secondary increase">+</button>
+                </td>
+                <td class="total-price">1.290.000đ</td>
+                <td><button type="button" class="btn btn-sm btn-danger">Xóa</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-end mt-3">
+        <h4>Tổng thanh toán: <span class="text-danger font-weight-bold grand-total">1.290.000đ</span></h4>
+        <button class="btn btn-success btn-lg mt-2">Tiến Hành Thanh Toán</button>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        function formatCurrency(amount) {
+            return amount.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function updateCart() {
+            let grandTotal = 0;
+            document.querySelectorAll('.cart-item').forEach(row => {
+                let unitPrice = parseInt(row.querySelector('.unit-price').getAttribute('data-price'));
+                let quantity = parseInt(row.querySelector('.quantity').innerText);
+                let itemTotal = unitPrice * quantity;
+
+                row.querySelector('.total-price').innerText = formatCurrency(itemTotal);
+                grandTotal += itemTotal;
+            });
+            document.querySelector('.grand-total').innerText = formatCurrency(grandTotal);
+        }
+
+        document.querySelectorAll('.increase').forEach(button => {
+            button.addEventListener('click', function () {
+                let row = this.closest('tr');
+                let qtySpan = row.querySelector('.quantity');
+                let qty = parseInt(qtySpan.innerText);
+                qtySpan.innerText = qty + 1;
+                updateCart();
+            });
+        });
+
+        document.querySelectorAll('.decrease').forEach(button => {
+            button.addEventListener('click', function () {
+                let row = this.closest('tr');
+                let qtySpan = row.querySelector('.quantity');
+                let qty = parseInt(qtySpan.innerText);
+                if (qty > 1) {
+                    qtySpan.innerText = qty - 1;
+                    updateCart();
+                }
+            });
+        });
+    </script>
+}
