@@ -239,8 +239,30 @@
         </div>
 
         <div class="header-actions">
-            <a href="@Url.Action("Login", "Home")" class="nav-item">Đăng nhập</a>
-            <a href="@Url.Action("Register", "Home")" class="nav-item">Đăng ký</a>
+            @* KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP *@
+            @if (Session["User"] != null)
+            {
+                <span class="nav-item" style="border: none; cursor: default;">
+                    Xin chào, <br /><strong>@Session["FullName"]</strong>
+                </span>
+
+                @* Nút dành riêng cho Admin *@
+                if (Session["RoleID"] != null && (int)Session["RoleID"] == 1)
+                {
+                    <a href="@Url.Action("Index", "Products", new { area = "Admin" })" class="nav-item" style="color: #ffc107;">
+                        Quản trị Admin
+                    </a>
+                }
+
+                <a href="@Url.Action("Logout", "Account")" class="nav-item">Đăng xuất</a>
+            }
+            else
+            {
+                @* CHƯA ĐĂNG NHẬP *@
+                <a href="@Url.Action("Login", "Account")" class="nav-item">Đăng nhập</a>
+                <a href="@Url.Action("Register", "Account")" class="nav-item">Đăng ký</a>
+            }
+
             <a href="@Url.Action("Cart", "Home")" class="cart-box">
                 🛒 Giỏ hàng <span class="cart-count">(0)</span>
             </a>
