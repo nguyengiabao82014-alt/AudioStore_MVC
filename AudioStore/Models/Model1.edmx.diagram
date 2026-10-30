@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="044ced2c346841acbc4a5901a0f5e997" Name="Diagram1" ZoomLevel="62">
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Brands" Width="1.5" PointX="8.75" PointY="6.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Categories" Width="1.5" PointX="2.875" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.DiscountCodes" Width="1.5" PointX="8.75" PointY="8.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.OrderDetails" Width="1.5" PointX="12.125" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Orders" Width="1.5" PointX="12.375" PointY="6.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Products" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Roles" Width="1.5" PointX="7.875" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Users" Width="1.5" PointX="12.375" PointY="10.5" IsExpanded="true" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__Products__BrandI__44FF419A" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__Products__Catego__440B1D61" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__Orders__Discount__4D94879B" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__OrderDeta__Order__5165187F" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__OrderDeta__Produ__52593CB8" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__Orders__UserID__4BAC3F29" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__Users__RoleID__3B75D760" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.CartItems" Width="1.5" PointX="5.5" PointY="2.75" />
+        <EntityTypeShape EntityType="DB_AudioStoreModel.Carts" Width="1.5" PointX="5.5" PointY="5.875" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__CartItems__CartI__5BE2A6F2" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__CartItems__Produ__5CD6CB2B" />
+        <AssociationConnector Association="DB_AudioStoreModel.FK__Carts__UserID__5629CD9C" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

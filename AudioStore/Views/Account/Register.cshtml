@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "Đăng ký";
+}
+
+<div class="container mt-5" style="max-width: 450px;">
+    @* Thay thế thẻ <form> bằng cú pháp Razor chuẩn *@
+    @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+    {
+        @* BẮT BUỘC: Mã bảo mật chống giả mạo *@
+        @Html.AntiForgeryToken()
+
+        <fieldset class="border p-4 rounded shadow-sm bg-white">
+            <legend class="w-auto px-2 font-weight-bold text-danger">Đăng Ký Tài Khoản</legend>
+
+            @* Hiển thị cảnh báo lỗi nếu có (trùng email, pass không khớp) *@
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" style="font-size: 14px;">
+                    @ViewBag.Error
+                </div> 
+            }
+
+            <div class="form-group mb-3">
+                <label>Họ và tên</label>
+                <input type="text" name="FullName" class="form-control" required placeholder="Nhập họ và tên..." />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Email</label>
+                <input type="email" name="Email" class="form-control" required placeholder="Nhập địa chỉ email..." />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Mật khẩu</label>
+                <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Nhập lại mật khẩu</label>
+                <input type="password" name="ConfirmPassword" class="form-control" required placeholder="Xác nhận lại mật khẩu..." />
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100">Đăng Ký</button>
+        </fieldset>
+    }
+</div>
