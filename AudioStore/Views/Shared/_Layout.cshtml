@@ -1,147 +1,149 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>@ViewBag.Title - Audio Store</title>
 
-    <link href="@Url.Content("~/Content/bootstrap.min.css")"
-          rel="stylesheet" />
-
-    <link href="@Url.Content("~/Content/Site.css")"
-          rel="stylesheet" />
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            color: #222222;
-        }
-
-        .audio-navbar {
-            background-color: #171717;
-            padding: 15px 0;
-        }
-
-            .audio-navbar .navbar-brand {
-                color: #ffc107;
-                font-size: 24px;
-                font-weight: bold;
-                text-decoration: none;
-            }
-
-            .audio-navbar .nav-link {
-                color: #ffffff;
-                text-decoration: none;
-                padding: 10px 14px;
-                display: inline-block;
-            }
-
-                .audio-navbar .nav-link:hover {
-                    color: #ffc107;
-                }
-
-        .audio-menu {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .audio-links {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .audio-footer {
-            margin-top: 40px;
-            padding: 24px 10px;
-            text-align: center;
-            background-color: #f3f3f3;
-            color: #666666;
-        }
-
-        @@media (max-width: 600px) {
-            .audio-menu {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .audio-links {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+    @Styles.Render("~/Content/css")
+    <link href="@Url.Content("~/Content/site.css")" rel="stylesheet" />
 </head>
 
 <body>
-    <header class="audio-navbar">
-        <div class="container">
-            <div class="audio-menu">
 
-                <a class="navbar-brand"
-                   href="@Url.Action("Index", "Home")">
-                    AUDIO STORE
+    <!-- HEADER -->
+    <header class="main-header">
+
+        <div class="header-top">
+
+            <!-- LOGO -->
+            <a href="@Url.Action("Index", "Home")" class="logo">
+                AUDIO<span>STORE</span>
+            </a>
+
+            <!-- SEARCH -->
+            <form class="search-box" action="@Url.Action("Index", "Home")" method="get">
+                <input type="text"
+                       name="search"
+                       placeholder="Tìm kiếm tai nghe, loa, micro..." />
+
+                <button type="submit">⌕</button>
+            </form>
+
+            <!-- ACCOUNT AND CART -->
+            <div class="header-actions">
+
+                <a href="@Url.Action("Login", "Account")" class="header-link">
+                    <span class="header-icon">♙</span>
+                    <span>
+                        <small>Xin chào!</small>
+                        <strong>Đăng nhập</strong>
+                    </span>
                 </a>
 
-                <ul class="audio-links">
-                    <li>
-                        <a class="nav-link"
-                           href="@Url.Action("Index", "Home")">
-                            Trang chủ
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-link"
-                           href="@Url.Action("Index", "Home")#products">
-                            Sản phẩm
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-link"
-                           href="@Url.Action("Index", "Home")#about">
-                            Giới thiệu
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-link"
-                           href="@Url.Action("Login", "Account")">
-                            Đăng nhập
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-link"
-                           href="@Url.Action("Register", "Account")">
-                            Đăng ký
-                        </a>
-                    </li>
-                </ul>
+                <a href="@Url.Action("Index", "Cart")" class="header-link cart-link">
+                    <span class="header-icon">🛒</span>
+                    <strong>Giỏ hàng</strong>
+                </a>
 
             </div>
         </div>
+
+        <!-- NAVIGATION -->
+        <nav class="main-nav">
+
+            <a href="@Url.Action("Index", "Home")">Trang chủ</a>
+
+            <a href="@Url.Action("Index", "Product")">Tất cả sản phẩm</a>
+
+            <a href="@Url.Action("Index", "Product", new { category = "headphone" })">
+                Tai nghe
+            </a>
+
+            <a href="@Url.Action("Index", "Product", new { category = "speaker" })">
+                Loa
+            </a>
+
+            <a href="@Url.Action("Index", "Product", new { category = "microphone" })">
+                Micro
+            </a>
+
+            <a href="#">Khuyến mãi</a>
+
+            <a href="#">Liên hệ</a>
+
+        </nav>
+
     </header>
 
-    <main>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
         @RenderBody()
     </main>
 
-    <footer class="audio-footer">
-        <p>© 2026 Audio Store - Cửa hàng thiết bị âm thanh</p>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+
+        <div class="footer-container">
+
+            <!-- COLUMN 1 -->
+            <div class="footer-column">
+                <h2 class="footer-logo">
+                    AUDIO<span>STORE</span>
+                </h2>
+
+                <p>
+                    Audio Store - Thế giới thiết bị âm thanh.
+                    Mang đến trải nghiệm âm thanh chất lượng
+                    cho mọi khách hàng.
+                </p>
+            </div>
+
+            <!-- COLUMN 2 -->
+            <div class="footer-column">
+                <h3>Về chúng tôi</h3>
+
+                <a href="#">Giới thiệu</a>
+                <a href="#">Hệ thống cửa hàng</a>
+                <a href="#">Tuyển dụng</a>
+                <a href="#">Liên hệ</a>
+            </div>
+
+            <!-- COLUMN 3 -->
+            <div class="footer-column">
+                <h3>Hỗ trợ khách hàng</h3>
+
+                <a href="#">Hướng dẫn mua hàng</a>
+                <a href="#">Chính sách bảo hành</a>
+                <a href="#">Chính sách đổi trả</a>
+                <a href="#">Chính sách vận chuyển</a>
+            </div>
+
+            <!-- COLUMN 4 -->
+            <div class="footer-column">
+                <h3>Thông tin liên hệ</h3>
+
+                <p>📍 TP. Hồ Chí Minh</p>
+                <p>☎ Hotline: 1900 0000</p>
+                <p>✉ Email: audiostore@gmail.com</p>
+                <p>⏰ 08:00 - 21:00</p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 AUDIO STORE. All Rights Reserved.</p>
+        </div>
+
     </footer>
 
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
     @RenderSection("scripts", required: false)
+
 </body>
 </html>
