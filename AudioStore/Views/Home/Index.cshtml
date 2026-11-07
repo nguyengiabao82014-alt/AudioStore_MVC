@@ -1,139 +1,548 @@
 @{
-    ViewData["Title"] = "Trang chủ";
+    ViewBag.Title = "Trang chủ";
 }
 
 <!-- BANNER -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center g-4">
-            <div class="col-md-6">
-                <span class="hero-label">ÂM THANH CHẤT LƯỢNG CAO</span>
+<section class="audio-banner">
+    <div class="banner-content">
+        <span class="banner-label">AUDIO STORE</span>
 
-                <h1>Trải nghiệm âm thanh đỉnh cao</h1>
+        <h1>THẾ GIỚI ÂM THANH</h1>
 
-                <p>
-                    Khám phá thế giới âm thanh với những mẫu tai nghe,
-                    loa Bluetooth và phụ kiện hiện đại tại Audio Store.
-                </p>
+        <h2>Khám phá âm thanh đỉnh cao</h2>
 
-                <a href="#products" class="btn btn-audio">
-                    Khám phá sản phẩm
-                </a>
-            </div>
+        <p>
+            Khám phá bộ sưu tập tai nghe, loa Bluetooth
+            và micro chất lượng với giá tốt nhất.
+        </p>
 
-            <div class="col-md-6">
-                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=70"
-                     alt="Tai nghe Audio Store"
-                     class="hero-image" />
-            </div>
-        </div>
+        <a href="#products" class="banner-btn">
+            KHÁM PHÁ NGAY →
+        </a>
+    </div>
+
+    <div class="banner-icon">
+        🎧
     </div>
 </section>
 
-<!-- DANH MỤC -->
-<section class="category-section">
-    <div class="container">
-        <h2 class="section-title">Danh mục sản phẩm</h2>
 
-        <div class="row g-3">
-            <div class="col-6 col-md-4">
-                <div class="category-card">
-                    <div class="category-icon">🎧</div>
-                    <h5>Tai nghe</h5>
-                    <p>Âm thanh sống động</p>
-                </div>
-            </div>
+<!-- DANH MỤC SẢN PHẨM -->
+<section class="audio-section">
 
-            <div class="col-6 col-md-4">
-                <div class="category-card">
-                    <div class="category-icon">🔊</div>
-                    <h5>Loa Bluetooth</h5>
-                    <p>Âm nhạc mọi lúc</p>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <div class="category-card">
-                    <div class="category-icon">🎵</div>
-                    <h5>Phụ kiện</h5>
-                    <p>Kết nối tiện lợi</p>
-                </div>
-            </div>
-        </div>
+    <div class="section-heading">
+        <h2>DANH MỤC SẢN PHẨM</h2>
+        <p>Khám phá các thiết bị âm thanh nổi bật</p>
     </div>
+
+    <div class="category-list">
+
+        <a href="#" class="category-card">
+            <div class="category-icon">🎧</div>
+            <h3>Tai nghe</h3>
+            <p>Âm thanh sống động</p>
+        </a>
+
+        <a href="#" class="category-card">
+            <div class="category-icon">🔊</div>
+            <h3>Loa</h3>
+            <p>Âm thanh mạnh mẽ</p>
+        </a>
+
+        <a href="#" class="category-card">
+            <div class="category-icon">🎤</div>
+            <h3>Micro</h3>
+            <p>Thu âm chuyên nghiệp</p>
+        </a>
+
+    </div>
+
 </section>
+
 
 <!-- SẢN PHẨM NỔI BẬT -->
-<section class="products-section" id="products">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="section-title mb-1">Sản phẩm nổi bật</h2>
-                <p class="text-muted mb-0">
-                    Lựa chọn âm thanh dành riêng cho bạn
-                </p>
+<section class="audio-section" id="products">
+
+    <div class="section-heading">
+        <h2>SẢN PHẨM NỔI BẬT</h2>
+        <p>Những sản phẩm được quan tâm tại Audio Store</p>
+    </div>
+
+    <div class="product-list">
+
+        <!-- PRODUCT 1 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe001.png")"
+                     alt="Tai nghe Bluetooth" />
+            </div>
+            <span class="discount-label">-19%</span>
+            <div class="product-info">
+                <h3>Tai nghe TWS Samsung Galaxy Buds4 Pro R640N</h3>
+
+                <p class="product-price">5.460.000</p>
+
+                <p class="old-price">6.700.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
             </div>
         </div>
-
-        <div class="row g-4">
-            <div class="col-6 col-md-4">
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=70"
-                         alt="Tai nghe không dây" />
-
-                    <div class="product-info">
-                        <span class="product-tag">Nổi bật</span>
-                        <h5>Tai nghe không dây</h5>
-                        <p class="product-price">1.290.000đ</p>
-                        <a href="#contact" class="btn btn-product">
-                            Tìm hiểu thêm
-                        </a>
-                    </div>
-                </div>
+        <!-- PRODUCT 2 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe002.png")"
+                     alt="Tai nghe Bluetooth" />
             </div>
 
-            <div class="col-6 col-md-4">
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=300&q=70"
-                         alt="Loa Bluetooth" />
+            <span class="discount-label">-19%</span>
 
-                    <div class="product-info">
-                        <span class="product-tag">Phổ biến</span>
-                        <h5>Loa Bluetooth</h5>
-                        <p class="product-price">890.000đ</p>
-                        <a href="#contact" class="btn btn-product">
-                            Tìm hiểu thêm
-                        </a>
-                    </div>
-                </div>
+            <div class="product-info">
+                <h3>Tai nghe TWS Samsung Galaxy Buds Core R640N</h3>
+
+                <p class="product-price">990.000</p>
+
+                <p class="old-price">1.100.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="002" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 3 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe004.png")"
+                     alt="Tai nghe Bluetooth" />
             </div>
 
-            <div class="col-6 col-md-4">
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=300&q=70"
-                         alt="Tai nghe in-ear" />
+            <span class="discount-label">-12%</span>
 
-                    <div class="product-info">
-                        <span class="product-tag">Mới</span>
-                        <h5>Tai nghe in-ear</h5>
-                        <p class="product-price">590.000đ</p>
-                        <a href="#contact" class="btn btn-product">
-                            Tìm hiểu thêm
-                        </a>
-                    </div>
-                </div>
+            <div class="product-info">
+                <h3>Tai nghe TWS OPPO Enco Air 5</h3>
+
+                <p class="product-price">1.390.000</p>
+
+                <p class="old-price">1.590.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 4 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe003.png")"
+                     alt="Tai nghe Bluetooth" />
+            </div>
+
+            <span class="discount-label">-8%</span>
+
+            <div class="product-info">
+                <h3>AirPods Pro 3</h3>
+
+                <p class="product-price">6.190.000</p>
+
+                <p class="old-price">6.700.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 5 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe005.png")"
+                     alt="Tai nghe Bluetooth" />
+            </div>
+
+            <span class="discount-label">-27%</span>
+
+            <div class="product-info">
+                <h3>Tai nghe TWS AVA+ FreeGo W30</h3>
+
+                <p class="product-price">210.000</p>
+
+                <p class="old-price">290.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 6 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe006.png")"
+                     alt="Tai nghe Bluetooth" />
+            </div>
+            <span class="discount-label">-0%</span>
+            <div class="product-info">
+                <h3>Tai nghe chụp tai Sony Wh-CH730N</h3>
+                <p class="product-price">2.990.000</p>
+                <p class="old-price">2.990.000</p>
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 7 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/loa001.png")"
+                     alt="Loa Bluetooth" />
+            </div>
+
+            <span class="discount-label">-33%</span>
+
+            <div class="product-info">
+                <h3>Loa Bluetooth Alpha Works AW-IKON20</h3>
+
+                <p class="product-price">1.950.000</p>
+
+                <p class="old-price">2.980.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 8 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/loa002.png")"
+                     alt="Loa Bluetooth" />
+            </div>
+
+            <span class="discount-label">-15%</span>
+
+            <div class="product-info">
+                <h3>Loa Bluetooth Xiaomi Sound Play</h3>
+
+                <p class="product-price">1.690.000</p>
+
+                <p class="old-price">1.990.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 9 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/loa003.png")"
+                     alt="Loa Bluetooth" />
+            </div>
+
+            <span class="discount-label">-43%</span>
+
+            <div class="product-info">
+                <h3>Loa Bluetooth Alpha Works AW-GENBEAT 520</h3>
+
+                <p class="product-price">8.490.000</p>
+
+                <p class="old-price">14.990.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 10 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/tainghe007.png")"
+                     alt="Tai nghe Bluetooth" />
+            </div>
+
+            <span class="discount-label">-18%</span>
+
+            <div class="product-info">
+                <h3>AirPods 4</h3>
+
+                <p class="product-price">3.090.000</p>
+
+                <p class="old-price">3.700.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 11 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/mic001.png")"
+                     alt="Thiết bị thu âm" />
+            </div>
+
+            <span class="discount-label">-0%</span>
+
+            <div class="product-info">
+                <h3>Thiết bị thu âm không dây DJI Mic Mini 2_DMMT02&DMMR01</h3>
+
+                <p class="product-price">1.745.000</p>
+
+                <p class="old-price">1.745.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 12 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/mic002.png")"
+                     alt="Thiết bị thu âm" />
+            </div>
+
+            <span class="discount-label">-10%</span>
+
+            <div class="product-info">
+                <h3>Thiết bị thu âm không dây DJI Mic Mini 2_DMMT02&DCS2_1TX</h3>
+
+                <p class="product-price">1.980.000</p>
+
+                <p class="old-price">2.200.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 13 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/mic003.png")"
+                     alt="Thiết bị thu âm" />
+            </div>
+
+            <span class="discount-label">-20%</span>
+
+            <div class="product-info">
+                <h3>Thiết bị thu âm không dây DJI Mic Mini 2S_DMMT03MMC03</h3>
+
+                <p class="product-price">4.000.000</p>
+
+                <p class="old-price">5.000.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 14 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/mic004.png")"
+                     alt="Thiết bị thu âm" />
+            </div>
+
+            <span class="discount-label">-15%</span>
+
+            <div class="product-info">
+                <h3>Thiết bị thu âm không dây DJI Mic 3_DMT0MR03</h3>
+
+                <p class="product-price">4.710.000</p>
+
+                <p class="old-price">5.550.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 15 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/mic005.png")"
+                     alt="Thiết bị thu âm" />
+            </div>
+
+            <span class="discount-label">-16%</span>
+
+            <div class="product-info">
+                <h3>Thiết bị thu âm không dây DJI Mic 3_DMT03&DMMC03</h3>
+
+                <p class="product-price">8.230.000</p>
+
+                <p class="old-price">9.820.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            </div>
+        </div>
+        <!-- PRODUCT 16 -->
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@Url.Content("~/Img/loa004.png")"
+                     alt="Loa Bluetooth" />
+            </div>
+
+            <span class="discount-label">-10%</span>
+
+            <div class="product-info">
+                <h3>
+                    Loa Bluetooth JBL Charge 6
+                </h3>
+
+                <p class="product-price">4.500.000</p>
+
+                <p class="old-price">5.000.000</p>
+
+                @using (Html.BeginForm("Add", "Cart", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="001" />
+
+                    <button type="submit" class="product-btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
             </div>
         </div>
     </div>
+
 </section>
 
-<!-- GIỚI THIỆU -->
-<section class="about-section" id="about">
-    <div class="container text-center">
-        <h2>Về Audio Store</h2>
-        <p>
-            Audio Store mang đến các sản phẩm âm thanh hiện đại,
-            giúp bạn tận hưởng âm nhạc theo cách riêng của mình.
-        </p>
+
+<!-- CAM KẾT -->
+<section class="service-list">
+
+    <div class="service-item">
+        <span>🚚</span>
+        <div>
+            <h3>Giao hàng nhanh</h3>
+            <p>Giao hàng tận nơi</p>
+        </div>
     </div>
+
+    <div class="service-item">
+        <span>🛡️</span>
+        <div>
+            <h3>Bảo hành chính hãng</h3>
+            <p>An tâm khi mua sắm</p>
+        </div>
+    </div>
+
+    <div class="service-item">
+        <span>💬</span>
+        <div>
+            <h3>Hỗ trợ khách hàng</h3>
+            <p>Tư vấn nhiệt tình</p>
+        </div>
+    </div>
+
 </section>
