@@ -1,0 +1,263 @@
+﻿@model AudioStore.Models.Products
+@{
+    ViewBag.Title = Model.ProductName;
+    var relatedProducts = ViewBag.RelatedProducts as List<AudioStore.Models.Products> ?? new List<AudioStore.Models.Products>();
+
+    // Tách danh sách tất cả hình ảnh của sản phẩm
+    List<string> imageList = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        var rawParts = Model.ImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in rawParts)
+        {
+            string img = part.Trim();
+            if (!img.Contains("."))
+            {
+                img += ".webp";
+            }
+
+            if (img.StartsWith("http") || img.StartsWith("/"))
+            {
+                imageList.Add(img);
+            }
+            else if (img.StartsWith("~"))
+            {
+                imageList.Add(Url.Content(img));
+            }
+            else
+            {
+                imageList.Add(Url.Content("~/Content/Images/products/" + img));
+            }
+        }
+    }
+
+    if (!imageList.Any())
+    {
+        imageList.Add("https://via.placeholder.com/450x450?text=Audio+Store");
+    }
+
+    // Xử lý link Video YouTube sang chuẩn Embed
+    string embedVideoUrl = "";
+    if (!string.IsNullOrWhiteSpace(Model.VideoUrl))
+    {
+        embedVideoUrl = Model.VideoUrl.Trim();
+        if (embedVideoUrl.Contains("youtube.com/watch?v="))
+        {
+            embedVideoUrl = embedVideoUrl.Replace("youtube.com/watch?v=", "youtube.com/embed/");
+            int ampIdx = embedVideoUrl.IndexOf("&");
+            if (ampIdx > 0)
+            {
+                embedVideoUrl = embedVideoUrl.Substring(0, ampIdx);
+            }
+        }
+        else if (embedVideoUrl.Contains("youtu.be/"))
+        {
+            embedVideoUrl = embedVideoUrl.Replace("youtu.be/", "youtube.com/embed/");
+        }
+    }
+}
+
+<div class="container my-4">
+    <!-- BREADCRUMB ĐIỀU HƯỚNG -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-white p-3 rounded shadow-sm small mb-0">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")" class="text-decoration-none">Trang chủ</a></li>
+            @if (Model.Categories != null)
+            {
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Search", "Home", new { categoryId = Model.CategoryID })" class="text-decoration-none">
+                        @Model.Categories.CategoryName
+                    </a>
+                </li>
+            }
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">@Model.ProductName</li>
+        </ol>
+    </nav>
+
+    <!-- KHỐI CHÍNH: HÌNH ẢNH + THÔNG TIN MUA HÀNG -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="row g-4">
+            <!-- CỘT TRÁI: GALLERY HÌNH ẢNH -->
+            <div class="col-lg-5 text-center">
+                <div class="border rounded-3 p-3 bg-white mb-3">
+                    <img id="mainProductImage" src="@imageList[0]" alt="@Model.ProductName"
+                         class="img-fluid" style="max-height: 360px; object-fit: contain;"
+                         onerror="this.src='https://via.placeholder.com/450x450?text=Audio+Store';" />
+                </div>
+
+                @if (imageList.Count > 1)
+                {
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        @foreach (var img in imageList)
+                        {
+                            <img src="@img" alt="Thumbnail"
+                                 class="img-thumbnail thumb-item"
+                                 style="width: 70px; height: 70px; object-fit: contain; cursor: pointer;"
+                                 onclick="document.getElementById('mainProductImage').src = this.src;"
+                                 onerror="this.src='https://via.placeholder.com/70';" />
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- CỘT PHẢI: THÔNG TIN SẢN PHẨM & NÚT MUA -->
+            <div class="col-lg-7">
+                <div class="mb-2">
+                    <span class="badge bg-dark me-2">@(Model.Brands != null ? Model.Brands.BrandName : "Chính hãng")</span>
+                    <span class="badge bg-info text-dark me-2">@(Model.Categories != null ? Model.Categories.CategoryName : "Audio")</span>
+                    @if (Model.IsWireless == true)
+                    {
+                        <span class="badge bg-success">Không dây (Wireless)</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Có dây (Wired)</span>
+                    }
+                </div>
+
+                <h2 class="fw-bold text-dark mb-2">@Model.ProductName</h2>
+
+                <div class="text-warning mb-3">
+                    &#9733;&#9733;&#9733;&#9733;&#9733;
+                    <span class="text-muted small ms-1">(Đánh giá 5.0/5 từ khách hàng)</span>
+                </div>
+
+                <div class="p-3 rounded-3 mb-3" style="background-color: #fef8f2; border-left: 4px solid #e47911;">
+                    <div class="text-muted small">Giá bán niêm yết:</div>
+                    <div class="d-flex align-items-baseline gap-3">
+                        <span class="display-6 fw-bold text-danger">@string.Format("{0:N0}", Model.Price) VNĐ</span>
+                        <del class="text-muted">@string.Format("{0:N0}", Model.Price * 1.15m) VNĐ</del>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Tình trạng kho: </strong>
+                    @if (!Model.StockQuantity.HasValue || Model.StockQuantity.Value > 0)
+                    {
+                        <span class="text-success fw-bold">✔ Còn hàng (@(Model.StockQuantity ?? 10) sản phẩm sẵn sàng giao)</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger fw-bold">✖ Tạm hết hàng</span>
+                    }
+                </div>
+
+                <!-- THÔNG SỐ KỸ THUẬT TÓM TẮT -->
+                @if (!string.IsNullOrWhiteSpace(Model.Specifications))
+                {
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark border-bottom pb-2">⚙️ Thông số kỹ thuật:</h6>
+                        <div class="p-3 rounded bg-light small" style="line-height: 1.7;">
+                            @Html.Raw(Model.Specifications)
+                        </div>
+                    </div>
+                }
+
+                <!-- CỤM NÚT MUA HÀNG LIÊN KẾT THÀNH VIÊN 3 -->
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    @if (!Model.StockQuantity.HasValue || Model.StockQuantity.Value > 0)
+                    {
+                        <a href="@Url.Action("AddToCart", "Cart", new { id = Model.ProductID })"
+                           class="btn btn-warning btn-lg fw-bold px-5 rounded-pill shadow-sm text-dark">
+                            🛒 THÊM VÀO GIỎ HÀNG
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary btn-lg px-5 rounded-pill" disabled>
+                            TẠM HẾT HÀNG
+                        </button>
+                    }
+                    <a href="@Url.Action("Search", "Home")" class="btn btn-outline-dark btn-lg px-4 rounded-pill">
+                        &larr; Tiếp tục xem sản phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI MÔ TẢ CHI TIẾT & VIDEO REVIEW -->
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">📝 Mô tả chi tiết sản phẩm</h5>
+                <div style="line-height: 1.8;">
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        @Html.Raw(Model.Description)
+                    }
+                    else
+                    {
+                        <p class="text-muted">Đang cập nhật mô tả chi tiết cho sản phẩm @Model.ProductName.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">🎬 Video giới thiệu &amp; Trải nghiệm âm thanh</h5>
+                @if (!string.IsNullOrEmpty(embedVideoUrl))
+                {
+                    <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+                        <iframe src="@embedVideoUrl" title="@Model.ProductName Video" allowfullscreen></iframe>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5 bg-light rounded">
+                        Sản phẩm này hiện chưa đính kèm video giới thiệu.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- SẢN PHẨM LIÊN QUAN CÙNG DANH MỤC -->
+    @if (relatedProducts.Any())
+    {
+        <div class="mt-5">
+            <h4 class="fw-bold mb-3 border-bottom pb-2">🔊 Sản phẩm cùng danh mục</h4>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                @foreach (var rel in relatedProducts)
+                {
+                    string relImg = "https://via.placeholder.com/250";
+                    if (!string.IsNullOrWhiteSpace(rel.ImageUrl))
+                    {
+                        string r = rel.ImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                        if (!r.Contains("."))
+                        {
+                            r += ".webp";
+                        }
+
+                        if (r.StartsWith("http") || r.StartsWith("/"))
+                        {
+                            relImg = r;
+                        }
+                        else if (r.StartsWith("~"))
+                        {
+                            relImg = Url.Content(r);
+                        }
+                        else
+                        {
+                            relImg = Url.Content("~/Content/Images/products/" + r);
+                        }
+                    }
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm p-3">
+                            <a href="@Url.Action("Details", "Home", new { id = rel.ProductID })" class="text-center d-block mb-2">
+                                <img src="@relImg" alt="@rel.ProductName" style="height: 130px; object-fit: contain;" class="img-fluid" onerror="this.src='https://via.placeholder.com/250';" />
+                            </a>
+                            <h6 class="fw-bold text-truncate mb-1" title="@rel.ProductName">@rel.ProductName</h6>
+                            <div class="text-danger fw-bold mb-2">@string.Format("{0:N0}", rel.Price) đ</div>
+                            <div class="mt-auto d-flex gap-1">
+                                <a href="@Url.Action("Details", "Home", new { id = rel.ProductID })" class="btn btn-outline-dark btn-sm w-50">Xem</a>
+                                <a href="@Url.Action("AddToCart", "Cart", new { id = rel.ProductID })" class="btn btn-warning btn-sm w-50 fw-bold">Mua</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

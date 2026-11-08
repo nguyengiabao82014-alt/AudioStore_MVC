@@ -1,0 +1,201 @@
+﻿@model IEnumerable<AudioStore.Models.Products>
+@{
+    ViewBag.Title = "Tìm kiếm & Lọc sản phẩm";
+    var categories = ViewBag.Categories as List<AudioStore.Models.Categories> ?? new List<AudioStore.Models.Categories>();
+    var brands = ViewBag.Brands as List<AudioStore.Models.Brands> ?? new List<AudioStore.Models.Brands>();
+}
+
+@functions {
+    public string ResolveProductImage(string rawImageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(rawImageUrl))
+        {
+            return "https://via.placeholder.com/300x300?text=Audio+Store";
+        }
+
+        var parts = rawImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+        {
+            return "https://via.placeholder.com/300x300?text=Audio+Store";
+        }
+
+        string img = parts[0].Trim();
+        if (!img.Contains("."))
+        {
+            img += ".webp";
+        }
+
+        if (img.StartsWith("http") || img.StartsWith("/"))
+        {
+            return img;
+        }
+        if (img.StartsWith("~"))
+        {
+            return Url.Content(img);
+        }
+
+        return Url.Content("~/Content/Images/products/" + img);
+    }
+}
+
+<div class="container my-4">
+    <div class="row g-4">
+        <!-- CỘT TRÁI: BỘ LỌC CHI TIẾT -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm p-3 bg-white sticky-top" style="top: 20px;">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">🎛️ Bộ Lọc Sản Phẩm</h5>
+
+                <form action="@Url.Action("Search", "Home")" method="get">
+                    <!-- 1. Từ khóa -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Từ khóa tìm kiếm</label>
+                        <input type="text" name="keyword" class="form-control form-control-sm"
+                               value="@ViewBag.Keyword" placeholder="Tên loa, tai nghe, micro..." />
+                    </div>
+
+                    <!-- 2. Loại danh mục -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Danh mục thiết bị</label>
+                        <select name="categoryId" class="form-select form-select-sm">
+                            <option value="">-- Tất cả danh mục --</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.CategoryID" @(ViewBag.SelectedCategory != null && (int)ViewBag.SelectedCategory == cat.CategoryID ? "selected" : "")>
+                                    @cat.CategoryName
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- 3. Thương hiệu (Hãng) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Hãng sản xuất</label>
+                        <select name="brandId" class="form-select form-select-sm">
+                            <option value="">-- Tất cả hãng --</option>
+                            @foreach (var brand in brands)
+                            {
+                                <option value="@brand.BrandID" @(ViewBag.SelectedBrand != null && (int)ViewBag.SelectedBrand == brand.BrandID ? "selected" : "")>
+                                    @brand.BrandName
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- 4. Kết nối Có dây / Không dây -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Chuẩn kết nối</label>
+                        <select name="isWireless" class="form-select form-select-sm">
+                            <option value="">-- Tất cả kết nối --</option>
+                            <option value="true" @(ViewBag.IsWireless != null && (bool)ViewBag.IsWireless == true ? "selected" : "")>Không dây (Bluetooth / Wireless)</option>
+                            <option value="false" @(ViewBag.IsWireless != null && (bool)ViewBag.IsWireless == false ? "selected" : "")>Có dây (Wired / Studio)</option>
+                        </select>
+                    </div>
+
+                    <!-- 5. Khoảng giá tiền -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Khoảng giá (VNĐ)</label>
+                        <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text">Từ</span>
+                            <input type="number" name="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" min="0" step="100000" />
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Đến</span>
+                            <input type="number" name="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="50.000.000" min="0" step="100000" />
+                        </div>
+                    </div>
+
+                    <!-- 6. Sắp xếp -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Sắp xếp theo</label>
+                        <select name="sortOrder" class="form-select form-select-sm">
+                            <option value="" @(string.IsNullOrEmpty(ViewBag.SortOrder) ? "selected" : "")>Mới nhất</option>
+                            <option value="price_asc" @(ViewBag.SortOrder == "price_asc" ? "selected" : "")>Giá: Thấp đến Cao</option>
+                            <option value="price_desc" @(ViewBag.SortOrder == "price_desc" ? "selected" : "")>Giá: Cao xuống Thấp</option>
+                            <option value="name_asc" @(ViewBag.SortOrder == "name_asc" ? "selected" : "")>Tên: A - Z</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 fw-bold text-dark mb-2">
+                        🔍 Áp dụng bộ lọc
+                    </button>
+                    <a href="@Url.Action("Search", "Home")" class="btn btn-outline-secondary btn-sm w-100">
+                        🔄 Xóa bộ lọc
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: KẾT QUẢ HIỂN THỊ -->
+        <div class="col-lg-9">
+            <div class="bg-white p-3 rounded shadow-sm mb-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold m-0">
+                    Kết quả lọc sản phẩm
+                    <span class="badge bg-dark ms-2">@Model.Count() thiết bị</span>
+                </h5>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-outline-dark">&larr; Về trang chủ</a>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="card border-0 shadow-sm p-5 text-center bg-white">
+                    <h5 class="text-danger fw-bold mb-2">Không tìm thấy thiết bị âm thanh nào phù hợp!</h5>
+                    <p class="text-muted mb-3">Hãy thử nới rộng khoảng giá hoặc xóa bớt điều kiện lọc bên cột trái.</p>
+                    <div>
+                        <a href="@Url.Action("Search", "Home")" class="btn btn-warning fw-bold px-4">Xem toàn bộ sản phẩm</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                    @foreach (var item in Model)
+                    {
+                        string imgSrc = ResolveProductImage(item.ImageUrl);
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm p-3 pro-search-card d-flex flex-column">
+                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-center p-2 d-block">
+                                    <img src="@imgSrc" alt="@item.ProductName"
+                                         style="height: 150px; width: 100%; object-fit: contain;"
+                                         onerror="this.src='https://via.placeholder.com/300x300?text=Audio+Store';" />
+                                </a>
+
+                                <div class="mt-2 d-flex flex-column flex-grow-1">
+                                    <div class="small text-muted mb-1">
+                                        @(item.Brands != null ? item.Brands.BrandName : "AudioStore") &bull;
+                                        @(item.IsWireless == true ? "Không dây" : "Có dây")
+                                    </div>
+                                    <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none text-dark">
+                                        <h6 class="fw-bold text-truncate mb-2" title="@item.ProductName">@item.ProductName</h6>
+                                    </a>
+                                    <div class="text-danger fw-bold fs-6 mb-3">
+                                        @string.Format("{0:N0}", item.Price) đ
+                                    </div>
+
+                                    <div class="mt-auto d-flex gap-2">
+                                        <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">
+                                            Chi tiết
+                                        </a>
+                                        <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
+                                            🛒 Mua ngay
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .pro-search-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .pro-search-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        }
+</style>
