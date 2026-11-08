@@ -85,7 +85,8 @@ namespace AudioStore.Controllers
                     // Phân quyền chuyển hướng
                     if (user.RoleID == 1) // 1 là Admin
                     {
-                        return RedirectToAction("Index", "Products", new { area = "Admin" });
+                        // Đưa Admin nhảy thẳng vào trang lựa chọn Dashboard vừa tạo
+                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" }); ;
                     }
                     else // 2 là Customer
                     {

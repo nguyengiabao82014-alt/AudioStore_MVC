@@ -1,0 +1,245 @@
+﻿@model AudioStore.Models.CheckoutViewModel
+
+@{
+    ViewBag.Title = "Thanh toán an toàn - Audio Store";
+    var cart = Session["Cart"] as List<AudioStore.Models.CartItem>;
+}
+
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- FORM ĐIỀN THÔNG TIN BẢO MẬT (BÊN TRÁI) -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4">
+                <h4 class="fw-bold mb-4" style="color: #232f3e;"><i class="fas fa-lock me-2"></i>Thông tin nhận hàng</h4>
+
+                @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post, new { @id = "checkoutForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                    <!-- TRƯỜNG ẨN HỨNG MÃ GIẢM GIÁ GỬI LÊN SERVER -->
+                    <input type="hidden" id="hiddenDiscountCode" name="DiscountCode" value="" />
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control input-amazon", placeholder = "Nhập tên người nhận (VD: Nguyễn Văn A)", autocomplete = "off" })
+                            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control input-amazon", placeholder = "09xxxxxxxx", type = "tel", autocomplete = "off" })
+                            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control input-amazon", placeholder = "email@domain.com", type = "email", autocomplete = "off" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Địa chỉ giao hàng chi tiết <span class="text-danger">*</span></label>
+                            @Html.TextAreaFor(m => m.ShippingAddress, new { @class = "form-control input-amazon", rows = "3", placeholder = "Số nhà, Tên đường, Phường/Xã, Quận/Huyện..." })
+                            @Html.ValidationMessageFor(m => m.ShippingAddress, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2">Phương thức thanh toán</h5>
+                            <div class="form-check mb-2">
+                                @Html.RadioButtonFor(m => m.PaymentMethod, "COD", new { @class = "form-check-input", id = "payCOD", @checked = "checked" })
+                                <label class="form-check-label fw-semibold" for="payCOD">Thanh toán khi nhận hàng (COD)</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                @Html.RadioButtonFor(m => m.PaymentMethod, "BankTransfer", new { @class = "form-check-input", id = "payBank" })
+                                <label class="form-check-label fw-semibold" for="payBank">Chuyển khoản ngân hàng</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.PaymentMethod, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
+
+                            <!-- KHU VỰC HIỂN THỊ ẢNH QR CODE KHI CHỌN CHUYỂN KHOẢN -->
+                            <div id="qrCodeContainer" class="text-center mt-3 p-3 border rounded bg-light d-none">
+                                <p class="fw-bold text-dark mb-2">Quét mã QR để chuyển khoản thanh toán:</p>
+                                <img src="@Url.Content("~/Content/Images/maQR.jpg")" alt="Mã QR chuyển khoản" class="img-fluid rounded shadow-sm" style="max-width: 220px; height: auto;" />
+                                <p class="text-muted small mt-2 mb-0">Nội dung chuyển khoản: [Tên người nhận + Số điện thoại]</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top text-end">
+                        <button type="submit" class="btn btn-checkout px-5 py-2 fw-bold fs-5 w-100">XÁC NHẬN ĐẶT HÀNG</button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- TÓM TẮT ĐƠN HÀNG & MÃ GIẢM GIÁ (BÊN PHẢI) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm" style="background-color: #f8f9fa;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Tóm tắt đơn hàng</h5>
+                    <div class="product-list-summary mb-3" style="max-height: 300px; overflow-y: auto;">
+                        @{ decimal total = 0; }
+                        @if (cart != null)
+                        {
+                            foreach (var item in cart)
+                            {
+                                total += item.TotalPrice;
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <div>
+                                        <div class="fw-semibold text-truncate text-dark" style="max-width: 180px;" title="@item.ProductName">@item.ProductName</div>
+                                        <small class="text-muted">SL: @item.Quantity</small>
+                                    </div>
+                                    <div class="fw-bold text-dark">@string.Format("{0:N0}", item.TotalPrice) đ</div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- KHU VỰC NHẬP MÃ GIẢM GIÁ -->
+                    <div class="input-group mb-2 mt-3">
+                        <input type="text" id="inputDiscountCode" class="form-control input-amazon" placeholder="Nhập mã giảm giá" autocomplete="off" maxlength="50">
+                        <button type="button" id="btnApplyDiscount" class="btn btn-dark fw-bold">Áp dụng</button>
+                    </div>
+                    <!-- Dòng thông báo trạng thái mã giảm giá trực tiếp dưới ô nhập -->
+                    <div id="discountMessage" class="small fw-bold mb-3 d-none"></div>
+
+                    <!-- TẠM TÍNH -->
+                    <div class="d-flex justify-content-between fs-6 mb-2">
+                        <span>Tạm tính:</span>
+                        <span class="fw-semibold">@string.Format("{0:N0}", total) đ</span>
+                    </div>
+
+                    <!-- DÒNG HIỂN THỊ TIỀN GIẢM (ẨN MẶC ĐỊNH) -->
+                    <div id="discountRow" class="d-flex justify-content-between fs-6 mb-2 d-none text-success">
+                        <span>Được giảm:</span>
+                        <span id="discountAmountText" class="fw-bold">-0 đ</span>
+                    </div>
+
+                    <!-- TỔNG CỘNG SAU KHI GIẢM -->
+                    <div class="d-flex justify-content-between fs-5 border-top pt-3 mt-3">
+                        <span class="fw-bold">TỔNG CỘNG:</span>
+                        <span id="finalAmountText" class="fw-bold text-danger fs-4">@string.Format("{0:N0}", total) VNĐ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ĐẶT TRỰC TIẾP SCRIPT THUẦN TẠI ĐÂY ĐỂ CHẠY ĐỘC LẬP 100% KHÔNG SỢ LỖI LAYOUT -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var payCOD = document.getElementById("payCOD");
+        var payBank = document.getElementById("payBank");
+        var qrContainer = document.getElementById("qrCodeContainer");
+        var inputDiscount = document.getElementById("inputDiscountCode");
+        var btnApply = document.getElementById("btnApplyDiscount");
+        var hiddenDiscount = document.getElementById("hiddenDiscountCode");
+        var discountRow = document.getElementById("discountRow");
+        var discountAmountText = document.getElementById("discountAmountText");
+        var finalAmountText = document.getElementById("finalAmountText");
+        var discountMessage = document.getElementById("discountMessage");
+
+        // 1. Ẩn / Hiện mã QR khi chuyển đổi phương thức thanh toán
+        function toggleQR() {
+            if (payBank && payBank.checked) {
+                qrContainer.classList.remove("d-none");
+            } else if (qrContainer) {
+                qrContainer.classList.add("d-none");
+            }
+        }
+        if (payCOD) payCOD.addEventListener("change", toggleQR);
+        if (payBank) payBank.addEventListener("change", toggleQR);
+
+        // 2. Chặn ký tự đặc biệt/khoảng trắng khi gõ mã giảm giá (chỉ cho phép chữ và số, tự viết hoa)
+        if (inputDiscount) {
+            inputDiscount.addEventListener("input", function () {
+                this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            });
+        }
+
+        // 3. Xử lý khi bấm nút Áp dụng mã giảm giá
+        if (btnApply) {
+            btnApply.addEventListener("click", function () {
+                var code = inputDiscount.value.trim();
+                discountMessage.classList.remove("d-none", "text-success", "text-danger");
+
+                if (code === "") {
+                    discountMessage.textContent = "Vui lòng nhập mã giảm giá trước khi bấm Áp dụng!";
+                    discountMessage.classList.add("text-danger");
+                    return;
+                }
+
+                btnApply.disabled = true;
+                btnApply.textContent = "Đang kiểm tra...";
+
+                fetch('@Url.Action("ApplyDiscount", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'code=' + encodeURIComponent(code)
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error("Không tìm thấy hàm ApplyDiscount trong CartController (Lỗi " + response.status + ")");
+                    }
+                    return response.json();
+                })
+                .then(function (res) {
+                    if (res.success) {
+                        hiddenDiscount.value = code;
+                        discountRow.classList.remove("d-none");
+                        discountAmountText.textContent = "-" + Number(res.discountAmount).toLocaleString('vi-VN') + " đ";
+                        finalAmountText.textContent = Number(res.finalAmount).toLocaleString('vi-VN') + " VNĐ";
+
+                        discountMessage.textContent = "✔ " + res.message;
+                        discountMessage.classList.add("text-success");
+
+                        inputDiscount.readOnly = true;
+                        btnApply.textContent = "Đã áp dụng";
+                        btnApply.disabled = true;
+                    } else {
+                        discountMessage.textContent = "✖ " + res.message;
+                        discountMessage.classList.add("text-danger");
+                        btnApply.disabled = false;
+                        btnApply.textContent = "Áp dụng";
+                    }
+                })
+                .catch(function (err) {
+                    discountMessage.textContent = "✖ Lỗi kết nối: " + err.message;
+                    discountMessage.classList.add("text-danger");
+                    btnApply.disabled = false;
+                    btnApply.textContent = "Áp dụng";
+                });
+            });
+        }
+    });
+</script>
+
+<style>
+    .input-amazon {
+        border: 1px solid #888C8C;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(15,17,17,.15) inset;
+        padding: 8px 12px;
+    }
+
+        .input-amazon:focus {
+            border-color: #e77600;
+            box-shadow: 0 0 3px 2px rgba(228,121,17,.5);
+            outline: none;
+        }
+
+    .btn-checkout {
+        background-color: #ffd814;
+        color: #0f1111;
+        border: 1px solid #fcd200;
+        border-radius: 8px;
+    }
+
+        .btn-checkout:hover {
+            background-color: #f7ca00;
+        }
+</style>

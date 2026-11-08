@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "Quản trị hệ thống - Admin Dashboard";
+}
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-dark">Trang Quản Trị Audio Store</h1>
+        <p class="text-muted">Xin chào Quản trị viên, vui lòng chọn phân vùng bạn muốn quản lý bên dưới.</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- TÙY CHỌN 1: QUẢN LÝ SẢN PHẨM -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center p-4 transition-card">
+                <div class="card-body">
+                    <div class="mb-3 text-primary fs-1">
+                        📦
+                    </div>
+                    <h4 class="fw-bold mb-3">Quản lý Sản phẩm</h4>
+                    <p class="text-muted small mb-4">Xem danh sách, thêm mới, chỉnh sửa thông số kỹ thuật hoặc cập nhật trạng thái thiết bị âm thanh.</p>
+                    <a href="@Url.Action("Index", "Products", new { area = "Admin" })" class="btn btn-primary px-4 fw-bold w-100">Vào quản lý sản phẩm</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TÙY CHỌN 2: QUẢN LÝ MÃ GIẢM GIÁ -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 text-center p-4 transition-card">
+                <div class="card-body">
+                    <div class="mb-3 text-success fs-1">
+                        🎟️
+                    </div>
+                    <h4 class="fw-bold mb-3">Quản lý Mã giảm giá</h4>
+                    <p class="text-muted small mb-4">Tạo mã khuyến mãi mới, thiết lập phần trăm giảm, giới hạn tối đa và theo dõi hạn sử dụng.</p>
+                    <a href="@Url.Action("Index", "DiscountCodes", new { area = "Admin" })" class="btn btn-success px-4 fw-bold w-100">Vào quản lý mã giảm giá</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transition-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .transition-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+</style>
