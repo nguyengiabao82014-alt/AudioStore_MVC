@@ -446,8 +446,8 @@
             </button>
             <div class="all-dropdown-content">
                 <div class="dropdown-header-title">Danh mục thiết bị</div>
-                <a href="@Url.Action("Search", "Home", new { area = "" })">
-                    <span>Tất cả sản phẩm</span> <span>&rsaquo;</span>
+                <a href="@Url.Action("Search", "Home", new { area = "", isPromotion = true, sortOrder = "price_asc" })" class="fw-bold text-warning">
+                    <span>🔥 Khuyến Mãi Sốc</span> <span>&rsaquo;</span>
                 </a>
                 @foreach (var cat in navCategories)
                 {
