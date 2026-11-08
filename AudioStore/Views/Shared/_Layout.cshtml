@@ -1,41 +1,60 @@
+@using AudioStore.Models
+@{
+    var cart = Session["Cart"] as List<CartItem>;
+    int totalCartItems = cart != null ? cart.Sum(c => c.Quantity) : 0;
+
+    List<Categories> navCategories = new List<Categories>();
+    List<Brands> navBrands = new List<Brands>();
+    try
+    {
+        using (var dbNav = new DB_AudioStoreEntities())
+        {
+            navCategories = dbNav.Categories.ToList();
+            navBrands = dbNav.Brands.ToList();
+        }
+    }
+    catch { }
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>@ViewBag.Title - Audio Store</title>
 
     <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
 
     <style>
-        /* ==========================================================
-           1. RESET CSS & CÀI ĐẶT CHUNG
-           ========================================================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
             background-color: #eaeded;
             color: #0f1111;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* ==========================================================
-           2. THANH ĐIỀU HƯỚNG CHÍNH (MAIN HEADER)
-           ========================================================== */
+        main {
+            flex: 1;
+        }
+
+        /* 1. MAIN HEADER CHUẨN AMAZON */
         .main-header {
             background-color: #131921;
             color: #ffffff;
-            padding: 10px 20px;
+            padding: 10px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
         .logo-box {
@@ -43,9 +62,9 @@
             flex-direction: column;
             text-decoration: none;
             color: #ffbd00;
-            padding: 5px 8px;
+            padding: 4px 10px;
             border: 1px solid transparent;
-            border-radius: 2px;
+            border-radius: 4px;
         }
 
             .logo-box:hover {
@@ -53,8 +72,8 @@
             }
 
         .logo-text {
-            font-size: 25px;
-            font-weight: bold;
+            font-size: 26px;
+            font-weight: 800;
             letter-spacing: -0.5px;
             color: #ffffff;
         }
@@ -71,43 +90,58 @@
             margin-top: -3px;
         }
 
+        /* THANH SEARCH HOẠT ĐỘNG 100% */
         .search-container {
             display: flex;
             flex: 1;
-            max-width: 650px;
-            height: 40px;
-            border-radius: 4px;
+            max-width: 720px;
+            height: 42px;
+            border-radius: 6px;
             overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+
+            .search-container:focus-within {
+                box-shadow: 0 0 0 3px #ff9900;
+            }
 
         .search-category {
             background-color: #f3f3f3;
             border: none;
-            padding: 0 10px;
-            color: #555;
+            padding: 0 12px;
+            color: #333;
             font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
-            border-right: 1px solid #ddd;
+            border-right: 1px solid #cdcdcd;
+            max-width: 170px;
+            outline: none;
         }
+
+            .search-category:hover {
+                background-color: #dadada;
+            }
 
         .search-input {
             width: 100%;
-            padding: 0 12px;
+            padding: 0 14px;
             border: none;
             font-size: 15px;
+            color: #111;
             outline: none;
         }
 
         .search-btn {
-            background-color: #ffbd00;
+            background-color: #febd69;
             border: none;
-            width: 45px;
+            width: 52px;
             color: #131921;
+            font-size: 18px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.2s;
+            transition: background-color 0.2s;
         }
 
             .search-btn:hover {
@@ -117,23 +151,25 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
-        .nav-item {
+        .nav-item-link {
             color: #ffffff;
             text-decoration: none;
-            padding: 5px 8px;
+            padding: 6px 10px;
             border: 1px solid transparent;
-            border-radius: 2px;
+            border-radius: 4px;
             font-size: 13px;
+            line-height: 1.3;
         }
 
-            .nav-item:hover {
+            .nav-item-link:hover {
                 border-color: #ffffff;
+                color: #ffffff;
             }
 
-            .nav-item strong {
+            .nav-item-link strong {
                 display: block;
                 font-size: 14px;
             }
@@ -141,62 +177,184 @@
         .cart-box {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             color: #ffffff;
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
-            padding: 5px 8px;
+            padding: 6px 12px;
             border: 1px solid transparent;
+            border-radius: 4px;
         }
 
             .cart-box:hover {
                 border-color: #ffffff;
+                color: #ffbd00;
             }
 
         .cart-count {
             color: #ffbd00;
             font-size: 16px;
+            font-weight: 800;
         }
 
-        /* ==========================================================
-           3. THANH ĐIỀU HƯỚNG PHỤ (SUB-HEADER)
-           ========================================================== */
+        /* 2. SUB-HEADER & MENU XỔ XUỐNG "ALL" TỪ SQL */
         .sub-header {
             background-color: #232f3e;
             color: #ffffff;
-            padding: 8px 20px;
+            padding: 6px 24px;
             display: flex;
-            gap: 20px;
+            align-items: center;
+            gap: 16px;
             font-size: 14px;
+            flex-wrap: wrap;
+            position: relative;
         }
 
-            .sub-header a {
+            .sub-header > a {
                 color: #ffffff;
                 text-decoration: none;
-                padding: 4px 8px;
+                padding: 5px 10px;
                 border: 1px solid transparent;
+                border-radius: 3px;
+                transition: 0.15s;
             }
 
-                .sub-header a:hover {
+                .sub-header > a:hover {
                     border-color: #ffffff;
+                    color: #ffbd00;
                 }
 
-        /* ==========================================================
-           4. PHẦN CHÂN TRANG (FOOTER)
-           ========================================================== */
+        /* DROPDOWN MENU ALL */
+        .all-menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .all-menu-btn {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid transparent;
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .all-menu-btn:hover {
+                border-color: #ffffff;
+                color: #ffbd00;
+            }
+
+        .all-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #ffffff;
+            min-width: 280px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border-radius: 6px;
+            z-index: 9999;
+            padding: 12px 0;
+            color: #111;
+            border: 1px solid #ddd;
+        }
+
+        .all-menu-wrapper:hover .all-dropdown-content {
+            display: block;
+        }
+
+        .dropdown-header-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #555;
+            padding: 6px 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .all-dropdown-content a {
+            color: #111;
+            padding: 8px 18px;
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+            .all-dropdown-content a:hover {
+                background-color: #f3f3f3;
+                color: #e47911;
+                font-weight: 600;
+            }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e7e7e7;
+            margin: 8px 0;
+        }
+
+        /* 3. BONG BÓNG TƯ VẤN TRỰC TUYẾN (ZALO / SĐT) */
+        .floating-support {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9990;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .support-bubble {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 50px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+            .support-bubble:hover {
+                transform: translateY(-3px) scale(1.03);
+                color: #ffffff;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+            }
+
+        .bubble-zalo {
+            background: linear-gradient(135deg, #0068ff, #00a2ff);
+        }
+
+        .bubble-phone {
+            background: linear-gradient(135deg, #e52d27, #b31217);
+        }
+
+        /* 4. FOOTER */
         footer {
             background-color: #232f3e;
-            color: #131921;
-            margin-top: 50px;
+            color: #ffffff;
+            margin-top: 60px;
         }
 
         .back-to-top {
             background-color: #37475a;
             color: #ffffff;
             text-align: center;
-            padding: 15px 0;
+            padding: 14px 0;
             font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             display: block;
@@ -204,102 +362,179 @@
 
             .back-to-top:hover {
                 background-color: #485769;
+                color: #ffbd00;
             }
 
         .footer-content {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 30px 20px;
-            text-align: center;
+            padding: 35px 20px;
             font-size: 13px;
             line-height: 1.8;
+            color: #dddddd;
         }
     </style>
 </head>
 
 <body>
-    @{
-        // Lấy Session Giỏ hàng để đếm số lượng hiển thị lên Header
-        var cart = Session["Cart"] as List<AudioStore.Models.CartItem>;
-        int totalCartItems = cart != null ? cart.Sum(c => c.Quantity) : 0;
-    }
-
-    <!-- ================= BẮT ĐẦU HEADER CHÍNH ================= -->
+    <!-- ================= MAIN HEADER ================= -->
     <header class="main-header">
-        <a href="@Url.Action("Index", "Home")" class="logo-box">
+        <a href="@Url.Action("Index", "Home", new { area = "" })" class="logo-box">
             <div class="logo-text">Audio<span>Store</span></div>
             <div class="logo-curve"></div>
         </a>
 
-        <div class="search-container">
-            <select class="search-category">
-                <option>Tất cả danh mục</option>
-                <option>Loa Bluetooth</option>
-                <option>Tai Nghe</option>
+        <!-- FORM TÌM KIẾM GỬI THẲNG VỀ HOME/SEARCH -->
+        <form action="@Url.Action("Search", "Home", new { area = "" })" method="get" class="search-container">
+            <select name="categoryId" class="search-category">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var cat in navCategories)
+                {
+                    <option value="@cat.CategoryID" @(Request.QueryString["categoryId"] == cat.CategoryID.ToString() ? "selected" : "")>
+                        @cat.CategoryName
+                    </option>
+                }
             </select>
-            <input type="text" class="search-input" placeholder="Tìm kiếm thiết bị âm thanh, loa, tai nghe...">
-            <button class="search-btn">🔍</button>
-        </div>
+            <input type="text" name="keyword" class="search-input" value="@Request.QueryString["keyword"]" placeholder="Tìm kiếm thiết bị âm thanh, loa, tai nghe, micro..." autocomplete="off" />
+            <button type="submit" class="search-btn" title="Tìm kiếm">🔍</button>
+        </form>
 
         <div class="header-actions">
-            @* KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP *@
             @if (Session["User"] != null)
             {
-                <span class="nav-item" style="border: none; cursor: default;">
-                    Xin chào, <br /><strong>@Session["FullName"]</strong>
+                <span class="nav-item-link" style="cursor: default;">
+                    Xin chào,
+                    <strong>@Session["FullName"]</strong>
                 </span>
 
-                @* Nút dành riêng cho Admin *@
                 if (Session["RoleID"] != null && (int)Session["RoleID"] == 1)
                 {
-                    <a href="@Url.Action("Index", "Products", new { area = "Admin" })" class="nav-item" style="color: #ffc107;">
-                        Quản trị Admin
+                    <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="nav-item-link" style="color: #ffbd00; border-color: #ffbd00;">
+                        ⚙️ Quản trị
+                        <strong>Admin</strong>
                     </a>
                 }
 
-                <a href="@Url.Action("Logout", "Account")" class="nav-item">Đăng xuất</a>
+                <a href="@Url.Action("Logout", "Account", new { area = "" })" class="nav-item-link">
+                    Tài khoản
+                    <strong>Đăng xuất</strong>
+                </a>
             }
             else
             {
-                @* CHƯA ĐĂNG NHẬP *@
-                <a href="@Url.Action("Login", "Account")" class="nav-item">Đăng nhập</a>
-                <a href="@Url.Action("Register", "Account")" class="nav-item">Đăng ký</a>
+                <a href="@Url.Action("Login", "Account", new { area = "" })" class="nav-item-link">
+                    Xin chào, Khách
+                    <strong>Đăng nhập</strong>
+                </a>
+                <a href="@Url.Action("Register", "Account", new { area = "" })" class="nav-item-link">
+                    Tạo mới
+                    <strong>Đăng ký</strong>
+                </a>
             }
 
-            <!-- Đã sửa link trỏ về CartController và nhúng biến đếm số lượng -->
-            <a href="@Url.Action("Index", "Cart")" class="cart-box">
+            <a href="@Url.Action("Index", "Cart", new { area = "" })" class="cart-box">
                 🛒 Giỏ hàng <span class="cart-count">(@totalCartItems)</span>
             </a>
         </div>
     </header>
-    <!-- ================= KẾT THÚC HEADER CHÍNH ================= -->
-    <!-- ================= BẮT ĐẦU MENU PHỤ (SUB-HEADER) ================= -->
-    <nav class="sub-header">
-        <a href="@Url.Action("Index", "Home")"><strong>☰ Tất Cả Danh Mục</strong></a>
-        <a href="@Url.Action("Index", "Home")">Trang Chủ</a>
-        <a href="@Url.Action("Index", "Home")#products">Loa Bluetooth Hot</a>
-        <a href="@Url.Action("Index", "Home")#products">Tai Nghe Chống Ồn</a>
-        <a href="#">Khuyến Mãi</a>
-        <a href="#">Hỗ Trợ Khách Hàng</a>
-    </nav>
-    <!-- ================= KẾT THÚC MENU PHỤ ================= -->
 
+    <!-- ================= SUB-HEADER (MENU ALL ĐỔ DỮ LIỆU TỪ SQL) ================= -->
+    <nav class="sub-header">
+        <div class="all-menu-wrapper">
+            <button type="button" class="all-menu-btn">
+                ☰ Tất Cả Danh Mục ▾
+            </button>
+            <div class="all-dropdown-content">
+                <div class="dropdown-header-title">Danh mục thiết bị</div>
+                <a href="@Url.Action("Search", "Home", new { area = "" })">
+                    <span>Tất cả sản phẩm</span> <span>&rsaquo;</span>
+                </a>
+                @foreach (var cat in navCategories)
+                {
+                    <a href="@Url.Action("Search", "Home", new { area = "", categoryId = cat.CategoryID })">
+                        <span>@cat.CategoryName</span> <span>&rsaquo;</span>
+                    </a>
+                }
+
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-header-title">Thương hiệu nổi bật</div>
+                @foreach (var brand in navBrands)
+                {
+                    <a href="@Url.Action("Search", "Home", new { area = "", brandId = brand.BrandID })">
+                        <span>@brand.BrandName</span> <span>&rsaquo;</span>
+                    </a>
+                }
+
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-header-title">Kiểu kết nối</div>
+                <a href="@Url.Action("Search", "Home", new { area = "", isWireless = true })">
+                    <span>Thiết bị Không dây (Wireless)</span> <span>&rsaquo;</span>
+                </a>
+                <a href="@Url.Action("Search", "Home", new { area = "", isWireless = false })">
+                    <span>Thiết bị Có dây (Wired)</span> <span>&rsaquo;</span>
+                </a>
+            </div>
+        </div>
+
+        <a href="@Url.Action("Index", "Home", new { area = "" })">Trang Chủ</a>
+        <a href="@Url.Action("Search", "Home", new { area = "", isWireless = true })">Thiết Bị Không Dây</a>
+        @foreach (var cat in navCategories.Take(4))
+        {
+            <a href="@Url.Action("Search", "Home", new { area = "", categoryId = cat.CategoryID })">@cat.CategoryName</a>
+        }
+        <a href="@Url.Action("Search", "Home", new { area = "", sortOrder = "price_asc" })">🔥 Khuyến Mãi Tốt</a>
+    </nav>
+
+    <!-- ================= MAIN BODY ================= -->
     <main>
         @RenderBody()
     </main>
 
-    <!-- ================= BẮT ĐẦU CHÂN TRANG (FOOTER) ================= -->
+    <!-- ================= BONG BÓNG TƯ VẤN TRỰC TUYẾN (ZALO / HOTLINE) ================= -->
+    <div class="floating-support">
+        <a href="https://zalo.me/0901234567" target="_blank" rel="noopener noreferrer" class="support-bubble bubble-zalo" title="Chat Zalo tư vấn âm thanh">
+            <span>💬 Chat Zalo Tư Vấn</span>
+        </a>
+        <a href="tel:0901234567" class="support-bubble bubble-phone" title="Gọi Hotline mua hàng nhanh">
+            <span>📞 Hotline: 0932.192.648</span>
+        </a>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
     <footer>
-        <a href="#" class="back-to-top">Về đầu trang</a>
+        <a href="#" class="back-to-top">▲ Về đầu trang</a>
         <div class="footer-content">
-            <p><strong>Cửa hàng thiết bị âm thanh Audio Store</strong></p>
-            <p>Chuyên cung cấp các loại loa, tai nghe Wireless, Bluetooth chính hãng.</p>
-            <p>&copy; 2026 Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC.</p>
+            <div class="row text-start">
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold text-warning mb-2">AUDIO STORE VIỆT NAM</h6>
+                    <p class="small mb-1">Hệ thống phân phối thiết bị âm thanh chính hãng: Loa Bluetooth, Tai nghe chống ồn, Micro phòng thu &amp; DAC/Amply chuyên nghiệp.</p>
+                    <p class="small mb-0">Địa chỉ: TP. Hồ Chí Minh, Việt Nam</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold text-warning mb-2">DANH MỤC MUA SẮM</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="@Url.Action("Search", "Home", new { area = "" })" class="text-light text-decoration-none">Tất cả sản phẩm</a></li>
+                        <li><a href="@Url.Action("Search", "Home", new { area = "", isWireless = true })" class="text-light text-decoration-none">Loa &amp; Tai nghe Bluetooth</a></li>
+                        <li><a href="@Url.Action("Search", "Home", new { area = "", isWireless = false })" class="text-light text-decoration-none">Thiết bị phòng thu có dây</a></li>
+                        <li><a href="@Url.Action("Index", "Cart", new { area = "" })" class="text-light text-decoration-none">Giỏ hàng &amp; Thanh toán</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold text-warning mb-2">CHÍNH SÁCH &amp; HỖ TRỢ</h6>
+                    <p class="small mb-1">✔ Bảo hành chính hãng 12 - 24 tháng</p>
+                    <p class="small mb-1">✔ Đổi mới trong 15 ngày nếu lỗi NSX</p>
+                    <p class="small mb-1">✔ Hỗ trợ mã giảm giá &amp; thanh toán QR tiện lợi</p>
+                </div>
+            </div>
+            <hr class="border-secondary my-3" />
+            <div class="text-center small">
+                &copy; @DateTime.Now.Year Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC.
+            </div>
         </div>
     </footer>
-    <!-- ================= KẾT THÚC CHÂN TRANG ================= -->
 
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
-
 </body>
 </html>
