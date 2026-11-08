@@ -38,9 +38,6 @@ namespace AudioStore.Controllers
         }
 
         // Trang Giỏ hàng
-        public ActionResult Cart()
-        {
-            return View();
-        }
+       
     }
 }

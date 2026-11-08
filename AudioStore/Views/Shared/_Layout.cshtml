@@ -6,11 +6,8 @@
 
     <title>@ViewBag.Title - Audio Store</title>
 
-    <link href="@Url.Content("~/Content/bootstrap.min.css")"
-          rel="stylesheet" />
-
-    <link href="@Url.Content("~/Content/Site.css")"
-          rel="stylesheet" />
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
 
     <style>
         /* ==========================================================
@@ -54,6 +51,7 @@
             .logo-box:hover {
                 border-color: #ffbd00;
             }
+
         .logo-text {
             font-size: 25px;
             font-weight: bold;
@@ -220,6 +218,12 @@
 </head>
 
 <body>
+    @{
+        // Lấy Session Giỏ hàng để đếm số lượng hiển thị lên Header
+        var cart = Session["Cart"] as List<AudioStore.Models.CartItem>;
+        int totalCartItems = cart != null ? cart.Sum(c => c.Quantity) : 0;
+    }
+
     <!-- ================= BẮT ĐẦU HEADER CHÍNH ================= -->
     <header class="main-header">
         <a href="@Url.Action("Index", "Home")" class="logo-box">
@@ -262,8 +266,9 @@
                 <a href="@Url.Action("Register", "Account")" class="nav-item">Đăng ký</a>
             }
 
-            <a href="@Url.Action("Cart", "Home")" class="cart-box">
-                🛒 Giỏ hàng <span class="cart-count">(0)</span>
+            <!-- Đã sửa link trỏ về CartController và nhúng biến đếm số lượng -->
+            <a href="@Url.Action("Index", "Cart")" class="cart-box">
+                🛒 Giỏ hàng <span class="cart-count">(@totalCartItems)</span>
             </a>
         </div>
     </header>

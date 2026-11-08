@@ -1,0 +1,44 @@
+﻿@model IEnumerable<AudioStore.Models.DiscountCodes>
+
+@{
+    ViewBag.Title = "Quản lý mã giảm giá";
+}
+
+<div class="container-fluid my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">Danh sách Mã Giảm Giá</h3>
+        <a href="@Url.Action("Create")" class="btn btn-success fw-bold">+ Tạo mã mới</a>
+    </div>
+
+    <div class="card border-0 shadow-sm p-3">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã Code</th>
+                    <th>Giảm (%)</th>
+                    <th>Giảm tối đa</th>
+                    <th>Đơn tối thiểu</th>
+                    <th>Còn lại</th>
+                    <th>Hạn sử dụng</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-primary">@item.Code</td>
+                        <td>@item.DiscountPercent%</td>
+                        <td>@(item.MaxDiscountAmount.HasValue ? string.Format("{0:N0}", item.MaxDiscountAmount.Value) + " đ" : "Không giới hạn")</td>
+                        <td>@(item.MinOrderValue.HasValue ? string.Format("{0:N0}", item.MinOrderValue.Value) + " đ" : "0 đ")</td>
+                        <td>@(item.UsageLimit.HasValue ? item.UsageLimit.Value.ToString() : "Vô hạn")</td>
+                        <td>@(item.ExpiryDate.HasValue ? item.ExpiryDate.Value.ToString("dd/MM/yyyy HH:mm") : "Không thời hạn")</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("Delete", new { id = item.Code})" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa mã này?');">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

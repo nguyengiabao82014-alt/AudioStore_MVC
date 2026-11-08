@@ -1,0 +1,55 @@
+﻿@model AudioStore.Models.DiscountCodes
+
+@{
+    ViewBag.Title = "Thêm mã giảm giá mới";
+}
+
+<div class="container-fluid my-4">
+    <h3 class="fw-bold mb-4">Tạo Mã Giảm Giá Mới</h3>
+
+    <div class="card border-0 shadow-sm p-4" style="max-width: 700px;">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Mã giảm giá (Ký tự để khách nhập) <span class="text-danger">*</span></label>
+                @Html.TextBoxFor(m => m.Code, new { @class = "form-control", placeholder = "VD: SUMMER2026, FREESHIP..." })
+                @Html.ValidationMessageFor(m => m.Code, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Phần trăm giảm giá (%) <span class="text-danger">*</span></label>
+                @Html.TextBoxFor(m => m.DiscountPercent, new { @class = "form-control", type = "number", min = "1", max = "100", placeholder = "VD: 10 (Giảm 10%)" })
+                @Html.ValidationMessageFor(m => m.DiscountPercent, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Số tiền giảm tối đa (VNĐ)</label>
+                @Html.TextBoxFor(m => m.MaxDiscountAmount, new { @class = "form-control", type = "number", placeholder = "VD: 50000 (Giảm tối đa 50k)" })
+                <small class="text-muted">Để trống nếu không muốn giới hạn mức giảm tối đa.</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Giá trị đơn hàng tối thiểu để dùng (VNĐ)</label>
+                @Html.TextBoxFor(m => m.MinOrderValue, new { @class = "form-control", type = "number", placeholder = "VD: 500000 (Đơn từ 500k mới áp dụng)" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Số lượng lượt sử dụng tối đa</label>
+                @Html.TextBoxFor(m => m.UsageLimit, new { @class = "form-control", type = "number", placeholder = "VD: 100 lượt" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Ngày hết hạn</label>
+                @Html.TextBoxFor(m => m.ExpiryDate, new { @class = "form-control", type = "datetime-local" })
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary px-4 fw-bold">Lưu mã giảm giá</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary ms-2">Quay lại</a>
+            </div>
+        }
+    </div>
+</div>
