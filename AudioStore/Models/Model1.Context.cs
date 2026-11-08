@@ -26,6 +26,8 @@ namespace AudioStore.Models
         }
     
         public virtual DbSet<Brands> Brands { get; set; }
+        public virtual DbSet<CartItems> CartItems { get; set; }
+        public virtual DbSet<Carts> Carts { get; set; }
         public virtual DbSet<Categories> Categories { get; set; }
         public virtual DbSet<DiscountCodes> DiscountCodes { get; set; }
         public virtual DbSet<OrderDetails> OrderDetails { get; set; }
@@ -33,7 +35,5 @@ namespace AudioStore.Models
         public virtual DbSet<Products> Products { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<CartItems> CartItems { get; set; }
-        public virtual DbSet<Carts> Carts { get; set; }
     }
 }

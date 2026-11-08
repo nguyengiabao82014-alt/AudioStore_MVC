@@ -1,166 +1,202 @@
-@model IEnumerable<AudioStore.Models.Product>
+@model IEnumerable<AudioStore.Models.Products>
 
 @{
     ViewBag.Title = "Trang chủ - Audio Store";
 }
 
-<!-- BANNER -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center g-4">
-            <div class="col-md-6">
-                <span class="hero-label">ÂM THANH CHẤT LƯỢNG CAO</span>
-                <h1>Trải nghiệm âm thanh đỉnh cao</h1>
-                <p>
-                    Khám phá thế giới âm thanh với những mẫu tai nghe,
-                    loa Bluetooth và phụ kiện hiện đại tại Audio Store.
-                </p>
-                <a href="#products" class="btn btn-audio">
-                    Khám phá sản phẩm
-                </a>
-            </div>
-            <div class="col-md-6">
-                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=70"
-                     alt="Tai nghe Audio Store"
-                     class="hero-image" />
-            </div>
-        </div>
+<!-- THANH BRAND LOGO ĐỐI TÁC -->
+<div class="container my-4">
+    <div class="brand-bar shadow-sm">
+        <div class="brand-item">JBL</div>
+        <div class="brand-item">MARSHALL</div>
+        <div class="brand-item">HARMAN/KARDON</div>
+        <div class="brand-item">SONY</div>
     </div>
-</section>
-
-<!-- DANH MỤC -->
-<section class="category-section">
-    <div class="container">
-        <h2 class="section-title">Danh mục sản phẩm</h2>
-        <div class="row g-3">
-            <div class="col-6 col-md-4">
-                <div class="category-card">
-                    <div class="category-icon">🎧</div>
-                    <h5>Tai nghe</h5>
-                    <p>Âm thanh sống động</p>
-                </div>
-            </div>
-            <div class="col-6 col-md-4">
-                <div class="category-card">
-                    <div class="category-icon">🔊</div>
-                    <h5>Loa Bluetooth</h5>
-                    <p>Âm nhạc mọi lúc</p>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="category-card">
-                    <div class="category-icon">🎵</div>
-                    <h5>Phụ kiện</h5>
-                    <p>Kết nối tiện lợi</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- DANH SÁCH SẢN PHẨM (Load từ Database) -->
-<section class="products-section" id="products">
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="section-title mb-1 text-uppercase fw-bold">SẢN PHẨM NỔI BẬT</h2>
-                <p class="text-muted mb-0">
-                    Lựa chọn âm thanh dành riêng cho bạn
-                </p>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            @foreach (var item in Model)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm product-card">
-                        <div class="card-body d-flex flex-column text-center product-info">
-                            <h5 class="card-title fw-bold text-uppercase">@item.ProductName</h5>
-                            <p class="card-text text-danger fw-bold fs-5 my-3 product-price">
-                                Giá: @item.Price VNĐ
-                            </p>
-                            <a href="#" class="btn btn-outline-primary mt-auto btn-product">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-</section>
-
-<!-- GIỚI THIỆU -->
-<section class="about-section" id="about">
-    <div class="container text-center">
-        <h2>Về Audio Store</h2>
-        <p>
-            Audio Store mang đến các sản phẩm âm thanh hiện đại,
-            giúp bạn tận hưởng âm nhạc theo cách riêng của mình.
-        </p>
-    </div>
-</section>
-
-<!-- Góc phát nhạc test sản phẩm tích hợp Visualizer -->
-<div style="position: fixed; bottom: 20px; right: 20px; background: #131921; color: #ffffff; padding: 12px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 9999; display: flex; flex-direction: column; gap: 8px; width: 245px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-size: 13px; font-weight: bold; color: #ff3333;">Nhạc test sản phẩm</span>
-        <!-- Khối biểu đồ sóng âm -->
-        <div class="audio-visualizer" id="visualizer">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </div>
-    </div>
-    <audio id="testAudio" controls style="height: 30px; width: 100%;">
-        <source src="@Url.Content("~/Content/audio/test-song.mp3")" type="audio/mpeg">
-        Trình duyệt của bạn không hỗ trợ thẻ audio.
-    </audio>
 </div>
 
-<!-- CSS cho hiệu ứng sóng âm -->
-<style>
-    .audio-visualizer {
-        display: flex;
-        align-items: flex-end;
-        gap: 3px;
-        height: 16px;
-    }
-    .audio-visualizer .bar {
-        width: 3px;
-        height: 4px;
-        background-color: #ff3333;
-        border-radius: 2px;
-        transition: height 0.2s;
-    }
-    .audio-visualizer.playing .bar {
-        animation: soundWave 0.6s infinite ease-in-out alternate;
-    }
-    .audio-visualizer.playing .bar:nth-child(1) { animation-delay: 0.1s; }
-    .audio-visualizer.playing .bar:nth-child(2) { animation-delay: 0.3s; }
-    .audio-visualizer.playing .bar:nth-child(3) { animation-delay: 0.2s; }
-    .audio-visualizer.playing .bar:nth-child(4) { animation-delay: 0.4s; }
+<!-- KHU VỰC DANH MỤC & SẢN PHẨM THEO MẪU CHUYÊN NGHIỆP -->
+<div class="container my-5">
+    <div class="row g-4 align-items-stretch">
 
-    @@keyframes soundWave {
-        0% { height: 4px; }
-        100% { height: 16px; }
+        <!-- CỘT TRÁI: BANNER DANH MỤC NỔI BẬT -->
+        <div class="col-lg-3">
+            <div class="category-banner-card h-100">
+                <span class="badge-category-title">Condenser Micro</span>
+                <div class="text-center my-auto py-4">
+                    <img src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80"
+                         alt="Condenser Micro"
+                         class="img-fluid rounded shadow-sm" />
+                </div>
+                <p class="banner-quote">Trong Con Đường Nghệ Thuật Chúng Ta Không Thể Thiếu Sưu Truyền Tải Cảm Xúc!</p>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: DANH SÁCH SẢN PHẨM DẠNG LƯỚI NGANG -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h4 class="fw-bold m-0 text-dark">Micro Thu Âm</h4>
+                <a href="#" class="text-danger text-decoration-none fw-semibold small">Xem tất cả &rarr;</a>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+                @foreach (var item in Model.Take(3)) // Lấy mẫu sản phẩm đổ vào khung chuẩn
+                {
+                    <div class="col">
+                        <div class="pro-card h-100 position-relative">
+                            <!-- Nhãn Sale / Hot -->
+                            <div class="badge-group">
+                                <span class="badge bg-danger">SALE</span>
+                                <span class="badge bg-warning text-dark">HOT</span>
+                            </div>
+
+                            <div class="pro-img-wrapper text-center p-3">
+                                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=70"
+                                     alt="@item.ProductName"
+                                     class="pro-img" />
+                            </div>
+
+                            <div class="pro-body d-flex flex-column p-3">
+                                <h6 class="pro-title text-truncate" title="@item.ProductName">@item.ProductName</h6>
+                                <p class="pro-subtitle text-muted small mb-2">Micro Studio &amp; Vocal Chuyên Nghiệp</p>
+
+                                <!-- Đánh giá sao giả lập -->
+                                <div class="rating-stars mb-2">
+                                    <i class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</i>
+                                    <span class="text-success small fw-bold ms-1">&bull; Còn hàng</span>
+                                </div>
+
+                                <div class="pro-price text-danger fw-bold mb-3">
+                                    @string.Format("{0:N0}", item.Price) đ
+                                </div>
+
+                                <div class="mt-auto d-flex gap-2">
+                                    <a href="#" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">Chi tiết</a>
+                                    <a href="#" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">Thêm Vào Giỏ</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CSS ĐỒ GIAO DIỆN CHUYÊN NGHIỆP -->
+<style>
+    body {
+        background-color: #f4f6f8;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Brand Bar */
+    .brand-bar {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+
+    .brand-item {
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #444;
+        font-size: 16px;
+    }
+
+    /* Category Banner Left */
+    .category-banner-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid #eaeaea;
+    }
+
+    .badge-category-title {
+        background: #111;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 13px;
+        align-self: flex-start;
+    }
+
+    .banner-quote {
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    /* Product Card Style */
+    .pro-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #eaeaea;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+        .pro-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-color: #ffc107;
+        }
+
+    .badge-group {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        z-index: 2;
+    }
+
+        .badge-group .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            font-weight: 700;
+        }
+
+    .pro-img {
+        max-height: 140px;
+        object-fit: contain;
+        transition: transform 0.3s;
+    }
+
+    .pro-card:hover .pro-img {
+        transform: scale(1.05);
+    }
+
+    .pro-title {
+        font-weight: 700;
+        color: #222;
+        font-size: 14px;
+    }
+
+    .pro-subtitle {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    .rating-stars {
+        font-size: 12px;
+    }
+
+    .pro-price {
+        font-size: 15px;
     }
 </style>
-
-<!-- JavaScript điều khiển hiệu ứng theo trạng thái Audio -->
-<script>
-    const audio = document.getElementById('testAudio');
-    const visualizer = document.getElementById('visualizer');
-
-    audio.addEventListener('play', function() {
-        visualizer.classList.add('playing');
-    });
-
-    audio.addEventListener('pause', function() {
-        visualizer.classList.remove('playing');
-    });
-
-    audio.addEventListener('ended', function() {
-        visualizer.classList.remove('playing');
-    });
-</script>

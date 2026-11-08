@@ -17,8 +17,8 @@ namespace AudioStore.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Products()
         {
-            this.OrderDetails = new HashSet<OrderDetails>();
             this.CartItems = new HashSet<CartItems>();
+            this.OrderDetails = new HashSet<OrderDetails>();
         }
     
         public int ProductID { get; set; }
@@ -35,10 +35,10 @@ namespace AudioStore.Models
         public Nullable<bool> IsActive { get; set; }
     
         public virtual Brands Brands { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CartItems> CartItems { get; set; }
         public virtual Categories Categories { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OrderDetails> OrderDetails { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CartItems> CartItems { get; set; }
     }
 }
