@@ -1,0 +1,39 @@
+﻿@model IEnumerable<AudioStore.Models.Categories>
+
+@{
+    ViewBag.Title = "Danh sách danh mục";
+}
+
+<h2>Danh sách danh mục</h2>
+
+<p>
+    @Html.ActionLink("Thêm danh mục mới", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<table class="table table-bordered table-striped" style="vertical-align: middle;">
+    <thead>
+        <tr>
+            <th>Tên danh mục</th>
+            <th>Loại thiết bị (ParentType)</th>
+            <th style="width: 180px;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.CategoryName)</strong>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ParentType)
+                </td>
+                <td>
+                    @Html.ActionLink("Sửa", "Edit", new { id = item.CategoryID }, new { @class = "btn btn-xs btn-warning" }) |
+                    @Html.ActionLink("Chi tiết", "Details", new { id = item.CategoryID }, new { @class = "btn btn-xs btn-info" }) |
+                    @Html.ActionLink("Xóa", "Delete", new { id = item.CategoryID }, new { @class = "btn btn-xs btn-danger" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

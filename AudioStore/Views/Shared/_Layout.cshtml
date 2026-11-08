@@ -1,39 +1,300 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-</head>
-<body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <title>@ViewBag.Title - Audio Store</title>
+
+    <link href="@Url.Content("~/Content/bootstrap.min.css")"
+          rel="stylesheet" />
+
+    <link href="@Url.Content("~/Content/Site.css")"
+          rel="stylesheet" />
+
+    <style>
+        /* ==========================================================
+           1. RESET CSS & CÀI ĐẶT CHUNG
+           ========================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #eaeded;
+            color: #0f1111;
+        }
+
+        /* ==========================================================
+           2. THANH ĐIỀU HƯỚNG CHÍNH (MAIN HEADER)
+           ========================================================== */
+        .main-header {
+            background-color: #131921;
+            color: #ffffff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .logo-box {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: #ffbd00;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+
+            .logo-box:hover {
+                border-color: #ffbd00;
+            }
+        .logo-text {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+
+            .logo-text span {
+                color: #ffbd00;
+            }
+
+        .logo-curve {
+            width: 100%;
+            height: 4px;
+            border-bottom: 3px solid #ffbd00;
+            border-radius: 50%;
+            margin-top: -3px;
+        }
+
+        .search-container {
+            display: flex;
+            flex: 1;
+            max-width: 650px;
+            height: 40px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .search-category {
+            background-color: #f3f3f3;
+            border: none;
+            padding: 0 10px;
+            color: #555;
+            font-size: 13px;
+            cursor: pointer;
+            border-right: 1px solid #ddd;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0 12px;
+            border: none;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-btn {
+            background-color: #ffbd00;
+            border: none;
+            width: 45px;
+            color: #131921;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+            .search-btn:hover {
+                background-color: #f3a847;
+            }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-item {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            font-size: 13px;
+        }
+
+            .nav-item:hover {
+                border-color: #ffffff;
+            }
+
+            .nav-item strong {
+                display: block;
+                font-size: 14px;
+            }
+
+        .cart-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+        }
+
+            .cart-box:hover {
+                border-color: #ffffff;
+            }
+
+        .cart-count {
+            color: #ffbd00;
+            font-size: 16px;
+        }
+
+        /* ==========================================================
+           3. THANH ĐIỀU HƯỚNG PHỤ (SUB-HEADER)
+           ========================================================== */
+        .sub-header {
+            background-color: #232f3e;
+            color: #ffffff;
+            padding: 8px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+            .sub-header a {
+                color: #ffffff;
+                text-decoration: none;
+                padding: 4px 8px;
+                border: 1px solid transparent;
+            }
+
+                .sub-header a:hover {
+                    border-color: #ffffff;
+                }
+
+        /* ==========================================================
+           4. PHẦN CHÂN TRANG (FOOTER)
+           ========================================================== */
+        footer {
+            background-color: #232f3e;
+            color: #131921;
+            margin-top: 50px;
+        }
+
+        .back-to-top {
+            background-color: #37475a;
+            color: #ffffff;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+            .back-to-top:hover {
+                background-color: #485769;
+            }
+
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ================= BẮT ĐẦU HEADER CHÍNH ================= -->
+    <header class="main-header">
+        <a href="@Url.Action("Index", "Home")" class="logo-box">
+            <div class="logo-text">Audio<span>Store</span></div>
+            <div class="logo-curve"></div>
+        </a>
+
+        <div class="search-container">
+            <select class="search-category">
+                <option>Tất cả danh mục</option>
+                <option>Loa Bluetooth</option>
+                <option>Tai Nghe</option>
+            </select>
+            <input type="text" class="search-input" placeholder="Tìm kiếm thiết bị âm thanh, loa, tai nghe...">
+            <button class="search-btn">🔍</button>
+        </div>
+
+        <div class="header-actions">
+            @* KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP *@
+            @if (Session["User"] != null)
+            {
+                <span class="nav-item" style="border: none; cursor: default;">
+                    Xin chào, <br /><strong>@Session["FullName"]</strong>
+                </span>
+
+                @* Nút dành riêng cho Admin *@
+                if (Session["RoleID"] != null && (int)Session["RoleID"] == 1)
+                {
+                    <a href="@Url.Action("Index", "Products", new { area = "Admin" })" class="nav-item" style="color: #ffc107;">
+                        Quản trị Admin
+                    </a>
+                }
+
+                <a href="@Url.Action("Logout", "Account")" class="nav-item">Đăng xuất</a>
+            }
+            else
+            {
+                @* CHƯA ĐĂNG NHẬP *@
+                <a href="@Url.Action("Login", "Account")" class="nav-item">Đăng nhập</a>
+                <a href="@Url.Action("Register", "Account")" class="nav-item">Đăng ký</a>
+            }
+
+            <a href="@Url.Action("Cart", "Home")" class="cart-box">
+                🛒 Giỏ hàng <span class="cart-count">(0)</span>
+            </a>
+        </div>
+    </header>
+    <!-- ================= KẾT THÚC HEADER CHÍNH ================= -->
+    <!-- ================= BẮT ĐẦU MENU PHỤ (SUB-HEADER) ================= -->
+    <nav class="sub-header">
+        <a href="@Url.Action("Index", "Home")"><strong>☰ Tất Cả Danh Mục</strong></a>
+        <a href="@Url.Action("Index", "Home")">Trang Chủ</a>
+        <a href="@Url.Action("Index", "Home")#products">Loa Bluetooth Hot</a>
+        <a href="@Url.Action("Index", "Home")#products">Tai Nghe Chống Ồn</a>
+        <a href="#">Khuyến Mãi</a>
+        <a href="#">Hỗ Trợ Khách Hàng</a>
+    </nav>
+    <!-- ================= KẾT THÚC MENU PHỤ ================= -->
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- ================= BẮT ĐẦU CHÂN TRANG (FOOTER) ================= -->
+    <footer>
+        <a href="#" class="back-to-top">Về đầu trang</a>
+        <div class="footer-content">
+            <p><strong>Cửa hàng thiết bị âm thanh Audio Store</strong></p>
+            <p>Chuyên cung cấp các loại loa, tai nghe Wireless, Bluetooth chính hãng.</p>
+            <p>&copy; 2026 Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC.</p>
+        </div>
+    </footer>
+    <!-- ================= KẾT THÚC CHÂN TRANG ================= -->
+
     @RenderSection("scripts", required: false)
+
 </body>
 </html>

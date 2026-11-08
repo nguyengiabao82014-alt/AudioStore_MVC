@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+}
+
+<div class="container mt-5" style="max-width: 400px;">
+    @* Thay thế thẻ <form> cứng bằng cú pháp chuẩn của ASP.NET MVC *@
+    @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+    {
+        @* BẮT BUỘC: Mã bảo mật chống giả mạo request *@
+        @Html.AntiForgeryToken()
+
+        <fieldset class="border p-4 rounded shadow-sm bg-white">
+            <legend class="w-auto px-2 font-weight-bold text-danger">Đăng Nhập</legend>
+
+            @* Hiển thị cảnh báo lỗi (sai pass/sai tài khoản) nếu có *@
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" style="font-size: 14px;">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <div class="form-group mb-3">
+                <label>Email hoặc Tên đăng nhập</label>
+                @* Đã đổi name="username" thành name="UsernameOrEmail" cho khớp tham số Controller *@
+                <input type="text" name="UsernameOrEmail" class="form-control" required placeholder="Nhập tài khoản..." />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Mật khẩu</label>
+                @* Đổi name="password" thành name="Password" (viết hoa chữ P cho chuẩn) *@
+                <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100">Đăng Nhập</button>
+        </fieldset>
+    }
+</div>

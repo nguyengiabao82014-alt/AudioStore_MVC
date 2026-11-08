@@ -25,5 +25,22 @@ namespace AudioStore.Controllers
             ViewBag.Message = "Your contact page.";
             return View();
         }
+        // Trang Đăng nhập
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        // Trang Đăng ký
+        public ActionResult Register()
+        {
+            return View();
+        }
+
+        // Trang Giỏ hàng
+        public ActionResult Cart()
+        {
+            return View();
+        }
     }
 }

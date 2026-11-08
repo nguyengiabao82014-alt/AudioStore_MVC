@@ -1,0 +1,35 @@
+﻿@model IEnumerable<AudioStore.Models.Brands>
+
+@{
+    ViewBag.Title = "Danh sách thương hiệu";
+}
+
+<h2>Danh sách thương hiệu</h2>
+
+<p>
+    @Html.ActionLink("Thêm thương hiệu mới", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<table class="table table-bordered table-striped" style="vertical-align: middle;">
+    <thead>
+        <tr>
+            <th>Tên thương hiệu</th>
+            <th style="width: 180px;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.BrandName)</strong>
+                </td>
+                <td>
+                    @Html.ActionLink("Sửa", "Edit", new { id = item.BrandID }, new { @class = "btn btn-xs btn-warning" }) |
+                    @Html.ActionLink("Chi tiết", "Details", new { id = item.BrandID }, new { @class = "btn btn-xs btn-info" }) |
+                    @Html.ActionLink("Xóa", "Delete", new { id = item.BrandID }, new { @class = "btn btn-xs btn-danger" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
