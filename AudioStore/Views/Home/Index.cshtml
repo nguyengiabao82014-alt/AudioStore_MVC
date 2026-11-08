@@ -9,20 +9,30 @@
     public string ResolveProductImage(string rawImageUrl)
     {
         if (string.IsNullOrWhiteSpace(rawImageUrl))
+        {
             return "https://via.placeholder.com/300x300?text=Audio+Store";
+        }
 
         var parts = rawImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
+        {
             return "https://via.placeholder.com/300x300?text=Audio+Store";
+        }
 
         string img = parts[0].Trim();
         if (!img.Contains("."))
+        {
             img += ".webp";
+        }
 
         if (img.StartsWith("http") || img.StartsWith("/"))
+        {
             return img;
+        }
         if (img.StartsWith("~"))
+        {
             return Url.Content(img);
+        }
 
         return Url.Content("~/Content/Images/products/" + img);
     }
@@ -38,8 +48,8 @@
                 Trải nghiệm bộ sưu tập Loa Bluetooth, Tai nghe chống ồn chủ động và Micro phòng thu chính hãng từ Marshall, JBL, Harman/Kardon, Sony. Nhập mã <strong>SUMMER2026</strong> tại trang thanh toán để nhận ngay ưu đãi!
             </p>
             <div class="d-flex flex-wrap gap-3">
-                <a href="@Url.Action("Search", "Home")" class="btn btn-warning btn-lg fw-bold text-dark px-4 rounded-pill">
-                    Khám Phá Ngay &rarr;
+                <a href="@Url.Action("Search", "Home", new { isPromotion = true, sortOrder = "price_asc" })" class="btn btn-warning btn-lg fw-bold text-dark px-4 rounded-pill">
+                    Săn Deal Giảm Giá &rarr;
                 </a>
                 <a href="@Url.Action("Search", "Home", new { isWireless = true })" class="btn btn-outline-light btn-lg fw-semibold px-4 rounded-pill">
                     Thiết Bị Không Dây
@@ -55,7 +65,7 @@
     </div>
 </div>
 
-<!-- 2. DẢI THƯƠNG HIỆU ĐỐI TÁC (BẤM ĐƯỢC ĐỂ LỌC THEO HÃNG) -->
+<!-- 2. DẢI THƯƠNG HIỆU ĐỐI TÁC -->
 <div class="container my-4">
     <div class="brand-bar shadow-sm">
         <a href="@Url.Action("Search", "Home")" class="brand-item text-decoration-none">TẤT CẢ HÃNG</a>
@@ -105,7 +115,7 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-dark btn-sm fw-bold flex-grow-1">⚡ Lọc sản phẩm</button>
-                <a href="@Url.Action("Search", "Home")" class="btn btn-outline-secondary btn-sm">Mở bộ lọc đầy đủ</a>
+                <a href="@Url.Action("Search", "Home")" class="btn btn-outline-secondary btn-sm">Bộ lọc đầy đủ</a>
             </div>
         </form>
     </div>
@@ -114,8 +124,8 @@
 <!-- 4. DANH SÁCH SẢN PHẨM NỔI BẬT -->
 <div class="container my-4" id="products">
     <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-        <h4 class="fw-bold m-0 text-dark">🎧 Sản Phẩm Nổi Bật Mới Nhất</h4>
-        <a href="@Url.Action("Search", "Home")" class="text-danger text-decoration-none fw-bold small">
+        <h4 class="fw-bold m-0 text-dark">🎧 Sản Phẩm Nổi Bật &amp; Khuyến Mãi</h4>
+        <a href="@Url.Action("Search", "Home", new { isPromotion = true })" class="text-danger text-decoration-none fw-bold small">
             Xem tất cả (@Model.Count() sản phẩm) &rarr;
         </a>
     </div>
@@ -132,12 +142,12 @@
             @foreach (var item in Model.Take(8))
             {
                 string imgSrc = ResolveProductImage(item.ImageUrl);
-                decimal oldPrice = item.Price * 1.15m; // Giá gốc gạch ngang (-15%)
+                decimal oldPrice = item.Price * 1.15m;
 
                 <div class="col">
                     <div class="pro-card h-100 position-relative d-flex flex-column">
                         <div class="badge-group">
-                            <span class="badge bg-danger">-15%</span>
+                            <span class="badge bg-danger">GIẢM 15%</span>
                             @if (item.IsWireless == true)
                             {
                                 <span class="badge bg-dark">Wireless</span>
@@ -165,15 +175,12 @@
                                 <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
                             </a>
 
+                            <!-- DÒNG HIỂN THỊ SAO & CÒN HÀNG -->
                             <div class="rating-stars mb-2">
                                 <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-                                @if (item.StockQuantity.HasValue && item.StockQuantity.Value > 0)
+                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
                                 {
-                                    <span class="text-success small fw-bold ms-1">&bull; Còn @item.StockQuantity sp</span>
-                                }
-                                else if (!item.StockQuantity.HasValue)
-                                {
-                                    <span class="text-success small fw-bold ms-1">&bull; Còn hàng</span>
+                                    <span class="text-success small fw-bold ms-1">&bull; Còn hàng (@(item.StockQuantity ?? 10))</span>
                                 }
                                 else
                                 {
@@ -222,7 +229,7 @@
     </div>
 </div>
 
-<!-- 6. PHÂN KHU THEO DANH MỤC (TẤT CẢ SẢN PHẨM CÒN LẠI) -->
+<!-- 6. PHÂN KHU THEO DANH MỤC (TẤT CẢ SẢN PHẨM CÒN LẠI CŨNG HIỆN RÕ CÒN HÀNG & GIẢM GIÁ) -->
 @if (Model.Count() > 8)
 {
     <div class="container my-5">
@@ -235,8 +242,22 @@
             @foreach (var item in Model.Skip(8))
             {
                 string imgSrc = ResolveProductImage(item.ImageUrl);
+                decimal oldPrice = item.Price * 1.15m;
+
                 <div class="col">
                     <div class="pro-card h-100 position-relative d-flex flex-column">
+                        <div class="badge-group">
+                            <span class="badge bg-danger">GIẢM 15%</span>
+                            @if (item.IsWireless == true)
+                            {
+                                <span class="badge bg-dark">Wireless</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Wired</span>
+                            }
+                        </div>
+
                         <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="pro-img-wrapper text-center p-3 d-block text-decoration-none">
                             <img src="@imgSrc"
                                  alt="@item.ProductName"
@@ -246,21 +267,45 @@
 
                         <div class="pro-body d-flex flex-column flex-grow-1 p-3 pt-0">
                             <div class="text-muted small mb-1">
-                                @(item.Brands != null ? item.Brands.BrandName : "AudioStore")
+                                @(item.Brands != null ? item.Brands.BrandName : "AudioStore") &bull;
+                                @(item.Categories != null ? item.Categories.CategoryName : "Audio")
                             </div>
                             <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none">
-                                <h6 class="pro-title text-truncate mb-2" title="@item.ProductName">@item.ProductName</h6>
+                                <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
                             </a>
-                            <div class="pro-price text-danger fw-bold mb-3">
-                                @string.Format("{0:N0}", item.Price) đ
+
+                            <!-- DÒNG HIỂN THỊ SAO & CÒN HÀNG -->
+                            <div class="rating-stars mb-2">
+                                <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
+                                {
+                                    <span class="text-success small fw-bold ms-1">&bull; Còn hàng (@(item.StockQuantity ?? 10))</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger small fw-bold ms-1">&bull; Tạm hết hàng</span>
+                                }
                             </div>
+
+                            <div class="mb-3">
+                                <span class="pro-price text-danger fw-bold me-2">@string.Format("{0:N0}", item.Price) đ</span>
+                                <del class="text-muted small">@string.Format("{0:N0}", oldPrice) đ</del>
+                            </div>
+
                             <div class="mt-auto d-flex gap-2">
                                 <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">
                                     Chi tiết
                                 </a>
-                                <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
-                                    🛒 Thêm Vào Giỏ
-                                </a>
+                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
+                                {
+                                    <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
+                                        🛒 Thêm Vào Giỏ
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-secondary btn-sm flex-grow-1 rounded-pill" disabled>Hết hàng</button>
+                                }
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<AudioStore.Models.Products>
 @{
-    ViewBag.Title = "Tìm kiếm & Lọc sản phẩm";
+    bool isPromoPage = Request.QueryString["isPromotion"] == "true";
+    ViewBag.Title = isPromoPage ? "Săn Khuyến Mãi Giá Sốc" : "Tìm kiếm & Lọc sản phẩm";
     var categories = ViewBag.Categories as List<AudioStore.Models.Categories> ?? new List<AudioStore.Models.Categories>();
     var brands = ViewBag.Brands as List<AudioStore.Models.Brands> ?? new List<AudioStore.Models.Brands>();
 }
@@ -39,6 +40,26 @@
 }
 
 <div class="container my-4">
+    <!-- BANNER ĐẶC BIỆT KHI BẤM VÀO "KHUYẾN MÃI TỐT" TRÊN HEADER -->
+    @if (isPromoPage)
+    {
+        <div class="p-4 mb-4 rounded-4 text-white shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-center"
+             style="background: linear-gradient(135deg, #b31217 0%, #e52d27 100%);">
+            <div>
+                <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1 rounded-pill">⚡ FLASH SALE GIẢM ĐẾN 20%</span>
+                <h3 class="fw-bold mb-1">Chuyên Trang Săn Khuyến Mãi Thiết Bị Âm Thanh</h3>
+                <p class="mb-0 small text-light">
+                    Toàn bộ sản phẩm bên dưới đang được trợ giá trực tiếp. Đặc biệt: Nhập thêm mã <strong>SUMMER2026</strong> ở bước Thanh toán để được giảm chồng thêm tới <strong>200.000đ</strong>!
+                </p>
+            </div>
+            <div class="mt-3 mt-md-0 text-center bg-white text-dark p-3 rounded-3 shadow-sm" style="min-width: 210px;">
+                <div class="small text-muted fw-semibold">MÃ VOUCHER TẶNG THÊM</div>
+                <div class="fs-5 fw-bold text-danger my-1" style="letter-spacing: 1px;">SUMMER2026</div>
+                <span class="badge bg-success">Đang có hiệu lực</span>
+            </div>
+        </div>
+    }
+
     <div class="row g-4">
         <!-- CỘT TRÁI: BỘ LỌC CHI TIẾT -->
         <div class="col-lg-3">
@@ -46,6 +67,11 @@
                 <h5 class="fw-bold border-bottom pb-2 mb-3">🎛️ Bộ Lọc Sản Phẩm</h5>
 
                 <form action="@Url.Action("Search", "Home")" method="get">
+                    @if (isPromoPage)
+                    {
+                        <input type="hidden" name="isPromotion" value="true" />
+                    }
+
                     <!-- 1. Từ khóa -->
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Từ khóa tìm kiếm</label>
@@ -109,8 +135,8 @@
                         <label class="form-label fw-bold small">Sắp xếp theo</label>
                         <select name="sortOrder" class="form-select form-select-sm">
                             <option value="" @(string.IsNullOrEmpty(ViewBag.SortOrder) ? "selected" : "")>Mới nhất</option>
-                            <option value="price_asc" @(ViewBag.SortOrder == "price_asc" ? "selected" : "")>Giá: Thấp đến Cao</option>
-                            <option value="price_desc" @(ViewBag.SortOrder == "price_desc" ? "selected" : "")>Giá: Cao xuống Thấp</option>
+                            <option value="price_asc" @(ViewBag.SortOrder == "price_asc" ? "selected" : "")>Giá khuyến mãi: Thấp đến Cao</option>
+                            <option value="price_desc" @(ViewBag.SortOrder == "price_desc" ? "selected" : "")>Giá khuyến mãi: Cao xuống Thấp</option>
                             <option value="name_asc" @(ViewBag.SortOrder == "name_asc" ? "selected" : "")>Tên: A - Z</option>
                         </select>
                     </div>
@@ -125,11 +151,18 @@
             </div>
         </div>
 
-        <!-- CỘT PHẢI: KẾT QUẢ HIỂN THỊ -->
+        <!-- CỘT PHẢI: KẾT QUẢ HIỂN THỊ SẢN PHẨM KÈM KHUYẾN MÃI & CÒN HÀNG -->
         <div class="col-lg-9">
             <div class="bg-white p-3 rounded shadow-sm mb-3 d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold m-0">
-                    Kết quả lọc sản phẩm
+                    @if (isPromoPage)
+                    {
+                        <span class="text-danger">🔥 Danh Sách Sản Phẩm Đang Giảm Giá</span>
+                    }
+                    else
+                    {
+                        <span>Kết quả lọc sản phẩm</span>
+                    }
                     <span class="badge bg-dark ms-2">@Model.Count() thiết bị</span>
                 </h5>
                 <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-outline-dark">&larr; Về trang chủ</a>
@@ -151,9 +184,22 @@
                     @foreach (var item in Model)
                     {
                         string imgSrc = ResolveProductImage(item.ImageUrl);
+                        int discountPercent = isPromoPage ? 20 : 15;
+                        decimal originalPrice = item.Price * (100m + discountPercent) / 100m;
+                        decimal savedMoney = originalPrice - item.Price;
+
                         <div class="col">
-                            <div class="card h-100 border-0 shadow-sm p-3 pro-search-card d-flex flex-column">
-                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-center p-2 d-block">
+                            <div class="card h-100 border-0 shadow-sm p-3 pro-search-card position-relative d-flex flex-column">
+                                <!-- NHÃN GIẢM GIÁ GÓC TRÊN -->
+                                <div style="position: absolute; top: 10px; left: 10px; z-index: 2;" class="d-flex gap-1">
+                                    <span class="badge bg-danger">GIẢM @discountPercent%</span>
+                                    @if (isPromoPage)
+                                    {
+                                        <span class="badge bg-warning text-dark">DEAL HOT</span>
+                                    }
+                                </div>
+
+                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-center p-2 mt-3 d-block">
                                     <img src="@imgSrc" alt="@item.ProductName"
                                          style="height: 150px; width: 100%; object-fit: contain;"
                                          onerror="this.src='https://via.placeholder.com/300x300?text=Audio+Store';" />
@@ -164,20 +210,49 @@
                                         @(item.Brands != null ? item.Brands.BrandName : "AudioStore") &bull;
                                         @(item.IsWireless == true ? "Không dây" : "Có dây")
                                     </div>
+
                                     <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none text-dark">
-                                        <h6 class="fw-bold text-truncate mb-2" title="@item.ProductName">@item.ProductName</h6>
+                                        <h6 class="fw-bold text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
                                     </a>
-                                    <div class="text-danger fw-bold fs-6 mb-3">
-                                        @string.Format("{0:N0}", item.Price) đ
+
+                                    <!-- DÒNG HIỂN THỊ SAO & CÒN HÀNG -->
+                                    <div class="mb-2" style="font-size: 13px;">
+                                        <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                                        @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
+                                        {
+                                            <span class="text-success fw-bold ms-1">&bull; Còn hàng (@(item.StockQuantity ?? 10))</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger fw-bold ms-1">&bull; Tạm hết hàng</span>
+                                        }
+                                    </div>
+
+                                    <!-- HIỂN THỊ GIÁ GIẢM + GIÁ GỐC GẠCH CHÉO + TIẾT KIỆM -->
+                                    <div class="mb-3">
+                                        <div>
+                                            <span class="text-danger fw-bold fs-5 me-2">@string.Format("{0:N0}", item.Price) đ</span>
+                                            <del class="text-muted small">@string.Format("{0:N0}", originalPrice) đ</del>
+                                        </div>
+                                        <div class="small text-success fw-semibold">
+                                            Tiết kiệm: @string.Format("{0:N0}", savedMoney) đ
+                                        </div>
                                     </div>
 
                                     <div class="mt-auto d-flex gap-2">
                                         <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">
                                             Chi tiết
                                         </a>
-                                        <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
-                                            🛒 Mua ngay
-                                        </a>
+                                        @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
+                                        {
+                                            <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
+                                                🛒 Mua ngay
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-secondary btn-sm flex-grow-1 rounded-pill" disabled>Hết hàng</button>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -197,5 +272,6 @@
         .pro-search-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+            border: 1px solid #ffbd00 !important;
         }
 </style>
