@@ -500,38 +500,110 @@
         </a>
     </div>
 
-    <!-- ================= FOOTER ================= -->
-    <footer>
-        <a href="#" class="back-to-top">▲ Về đầu trang</a>
-        <div class="footer-content">
-            <div class="row text-start">
-                <div class="col-md-4 mb-3">
-                    <h6 class="fw-bold text-warning mb-2">AUDIO STORE VIỆT NAM</h6>
-                    <p class="small mb-1">Hệ thống phân phối thiết bị âm thanh chính hãng: Loa Bluetooth, Tai nghe chống ồn, Micro phòng thu &amp; DAC/Amply chuyên nghiệp.</p>
-                    <p class="small mb-0">Địa chỉ: TP. Hồ Chí Minh, Việt Nam</p>
+    <!-- ================= CHÂN TRANG (FOOTER) PHONG PHÚ & PHỦ KÍN ================= -->
+    <footer style="background-color: #1a222d; color: #b0c0d0; margin-top: 60px; font-size: 13px; line-height: 1.6;">
+        <!-- DẢI ĐĂNG KÝ NHẬN TIN (TĨNH, KHÔNG NÚT BẤM GÂY LỖI) -->
+        <div style="background-color: #111720; padding: 22px 20px; border-bottom: 1px solid #2a3545;">
+            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3 text-white">
+                    <span style="font-size: 20px;">📧</span>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-white">Đăng ký nhận thông tin khuyến mãi</h6>
+                        <span class="small text-muted">Nhận ngay ưu đãi độc quyền dành riêng cho thành viên Audio Store</span>
+                    </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <h6 class="fw-bold text-warning mb-2">DANH MỤC MUA SẮM</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="@Url.Action("Search", "Home", new { area = "" })" class="text-light text-decoration-none">Tất cả sản phẩm</a></li>
-                        <li><a href="@Url.Action("Search", "Home", new { area = "", isWireless = true })" class="text-light text-decoration-none">Loa &amp; Tai nghe Bluetooth</a></li>
-                        <li><a href="@Url.Action("Search", "Home", new { area = "", isWireless = false })" class="text-light text-decoration-none">Thiết bị phòng thu có dây</a></li>
-                        <li><a href="@Url.Action("Index", "Cart", new { area = "" })" class="text-light text-decoration-none">Giỏ hàng &amp; Thanh toán</a></li>
-                    </ul>
+                <div class="text-white-50 small bg-dark px-3 py-2 rounded border border-secondary">
+                    Hệ thống thông báo tự động • Bảo mật thông tin tuyệt đối
                 </div>
-                <div class="col-md-4 mb-3">
-                    <h6 class="fw-bold text-warning mb-2">CHÍNH SÁCH &amp; HỖ TRỢ</h6>
-                    <p class="small mb-1">✔ Bảo hành chính hãng 12 - 24 tháng</p>
-                    <p class="small mb-1">✔ Đổi mới trong 15 ngày nếu lỗi NSX</p>
-                    <p class="small mb-1">✔ Hỗ trợ mã giảm giá &amp; thanh toán QR tiện lợi</p>
-                </div>
-            </div>
-            <hr class="border-secondary my-3" />
-            <div class="text-center small">
-                &copy; @DateTime.Now.Year Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC.
             </div>
         </div>
+
+        <!-- NỘI DUNG CHÍNH CỦA CHÂN TRANG -->
+        <div class="container py-5">
+            <div class="row g-4">
+                <!-- CỘT 1: THÔNG TIN CÔNG TY & ĐỊA CHỈ -->
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold text-warning mb-3" style="letter-spacing: -0.5px;">AUDIO STORE (PGI)</h5>
+                    <p class="text-white small fw-bold mb-2">Công ty TNHH Real Men  (PGI)</p>
+
+                    <p class="mb-2 text-white-50 small">
+                        <strong class="text-light">📍 Trụ sở chính - TP.HCM:</strong><br />
+                        10 Trịnh Văn Cấn, Phường Bến Thành, TP. Hồ Chí Minh
+                    </p>
+                    <p class="mb-2 text-white-50 small">
+                        <strong class="text-light">🏢 Tòa nhà văn phòng PGI:</strong><br />
+                        5-7 Đường D52, Phường Bảy Hiền, TP. Hồ Chí Minh
+                    </p>
+
+                    <div class="mt-3 pt-2 border-top border-secondary">
+                        <p class="mb-1 text-light small">📞 <strong>Hotline:</strong> 093 219 2648- 028 6299 0552</p>
+                        <p class="mb-1 text-light small">✉️ <strong>Email:</strong> info@audiostore.vn</p>
+                        <p class="mb-0 text-white-50 small">🕒 <strong>Giờ làm việc:</strong> T2 - T7 (8h30 - 18h00)</p>
+                    </div>
+                </div>
+
+                <!-- CỘT 2: HỖ TRỢ KHÁCH HÀNG -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2">Hỗ trợ khách hàng</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="@Url.Action("Index", "Home", new { area = "" })" class="text-decoration-none text-white-50 hover-light">Giới thiệu về hệ thống</a></li>
+                        <li><a href="@Url.Action("Login", "Account", new { area = "" })" class="text-decoration-none text-white-50 hover-light">Đăng nhập thành viên</a></li>
+                        <li><a href="@Url.Action("Index", "Cart", new { area = "" })" class="text-decoration-none text-white-50 hover-light">Giỏ hàng của tôi</a></li>
+                        <li><a href="@Url.Action("Search", "Home", new { area = "" })" class="text-decoration-none text-white-50 hover-light">Hướng dẫn mua hàng</a></li>
+                        <li><a href="@Url.Action("Search", "Home", new { area = "", isPromotion = true })" class="text-decoration-none text-white-50 hover-light">Tra cứu khuyến mãi</a></li>
+                    </ul>
+                </div>
+
+                <!-- CỘT 3: CHÍNH SÁCH & BẢO HÀNH -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2">Chính sách &amp; Quy định</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><span class="text-white-50">Chính sách bảo hành chính hãng 12 tháng</span></li>
+                        <li><span class="text-white-50">Quy định đổi trả và hoàn tiền trong 15 ngày</span></li>
+                        <li><span class="text-white-50">Chính sách bảo mật thông tin khách hàng</span></li>
+                        <li><span class="text-white-50">Quy chế hoạt động thương mại điện tử</span></li>
+                        <li><span class="text-white-50">Chính sách giao hàng toàn quốc</span></li>
+                    </ul>
+                </div>
+
+                <!-- CỘT 4: THANH TOÁN & CHỨNG NHẬN -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2">Phương thức thanh toán</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge bg-light text-dark fw-bold px-2 py-1">VISA</span>
+                        <span class="badge bg-light text-dark fw-bold px-2 py-1">Mastercard</span>
+                        <span class="badge bg-light text-dark fw-bold px-2 py-1">JCB</span>
+                        <span class="badge bg-light text-dark fw-bold px-2 py-1">ZaloPay</span>
+                        <span class="badge bg-light text-dark fw-bold px-2 py-1">COD (Nhận hàng)</span>
+                    </div>
+
+                    <h6 class="fw-bold text-white mb-2 small">Chứng nhận uy tín</h6>
+                    <div class="p-2 bg-dark rounded border border-secondary d-inline-block">
+                        <span class="text-info fw-bold small">🛡️ ĐÃ THÔNG BÁO BỘ CÔNG THƯƠNG</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DẢI BẢN QUYỀN CUỐI CÙNG -->
+        <div style="background-color: #111720; padding: 18px 20px; border-top: 1px solid #2a3545; text-align: center;">
+            <div class="container text-white-50 small">
+                <p class="mb-1">&copy; @DateTime.Now.Year Bản quyền thuộc về Nhóm 9 - Dự án AudioStore_MVC. Mọi quyền được bảo lưu.</p>
+                <p class="mb-0" style="font-size: 11px;">Hệ thống phân phối thiết bị âm thanh chính hãng cao cấp tại Việt Nam.</p>
+            </div>
+        </div>
+
+        <!-- NÚT VỀ ĐẦU TRANG (TĨNH, THUẦN CSS/HTML AN TOÀN) -->
+        <a href="#" class="back-to-top text-center" style="display: block; background-color: #2a3545; color: #fff; padding: 12px 0; text-decoration: none; font-weight: 600; font-size: 12px;">
+            ▲ QUAY LẠI ĐẦU TRANG
+        </a>
     </footer>
+
+    <style>
+        .hover-light:hover {
+            color: #ffbd00 !important;
+        }
+    </style>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
