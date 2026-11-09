@@ -432,6 +432,12 @@
                 </a>
             }
 
+            <!-- NÚT LỊCH SỬ ĐƠN HÀNG ĐÃ ĐẶT (ĐẶT Ở CUỐI CÙNG TRƯỚC GIỎ HÀNG) -->
+            <a href="@Url.Action("OrderHistory", "Account", new { area = "" })" class="nav-item-link" style="color: #ffbd00; border: 1px dashed #ffbd00;">
+                📦 Đơn hàng
+                <strong>Lịch sử đặt</strong>
+            </a>
+
             <a href="@Url.Action("Index", "Cart", new { area = "" })" class="cart-box">
                 🛒 Giỏ hàng <span class="cart-count">(@totalCartItems)</span>
             </a>
@@ -524,7 +530,7 @@
                 <!-- CỘT 1: THÔNG TIN CÔNG TY & ĐỊA CHỈ -->
                 <div class="col-lg-4 col-md-6">
                     <h5 class="fw-bold text-warning mb-3" style="letter-spacing: -0.5px;">AUDIO STORE (PGI)</h5>
-                    <p class="text-white small fw-bold mb-2">Công ty TNHH Real Men  (PGI)</p>
+                    <p class="text-white small fw-bold mb-2">Công ty TNHH Real Men (PGI)</p>
 
                     <p class="mb-2 text-white-50 small">
                         <strong class="text-light">📍 Trụ sở chính - TP.HCM:</strong><br />

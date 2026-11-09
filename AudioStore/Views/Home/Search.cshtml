@@ -246,7 +246,7 @@
                                         @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
                                         {
                                             <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
-                                                🛒 Mua ngay
+                                                🛒 Thêm vào giỏ
                                             </a>
                                         }
                                         else
