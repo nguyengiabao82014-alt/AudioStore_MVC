@@ -2,7 +2,13 @@
 
 @{
     ViewBag.Title = "Thanh toán an toàn - Audio Store";
-    var cart = Session["Cart"] as List<AudioStore.Models.CartItem>;
+
+    // PHÂN NHÍCH ĐÚNG NGUỒN DỮ LIỆU: Ưu tiên lấy Session["CheckoutNow"] nếu bấm Mua Ngay, ngược lại lấy giỏ hàng chính
+    var checkoutCart = Session["CheckoutNow"] as List<AudioStore.Models.CartItem> ?? Session["Cart"] as List<AudioStore.Models.CartItem> ?? new List<AudioStore.Models.CartItem>();
+
+    // Kiểm tra xem có đang ở luồng mua ngay độc lập hay không để trỏ Action form cho đúng
+    bool isBuyNowFlow = Session["CheckoutNow"] != null;
+    string postActionName = isBuyNowFlow ? "CheckoutNow" : "Checkout";
 }
 
 <div class="container my-5">
@@ -12,7 +18,7 @@
             <div class="card border-0 shadow-sm p-4">
                 <h4 class="fw-bold mb-4" style="color: #232f3e;"><i class="fas fa-lock me-2"></i>Thông tin nhận hàng</h4>
 
-                @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post, new { @id = "checkoutForm" }))
+                @using (Html.BeginForm(postActionName, "Cart", FormMethod.Post, new { @id = "checkoutForm" }))
                 {
                     @Html.AntiForgeryToken()
                     @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
@@ -77,12 +83,18 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm" style="background-color: #f8f9fa;">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">Tóm tắt đơn hàng</h5>
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">
+                        Tóm tắt đơn hàng
+                        @if (isBuyNowFlow)
+                        {
+                            <span class="badge bg-danger fs-6 float-end">Mua Ngay</span>
+                        }
+                    </h5>
                     <div class="product-list-summary mb-3" style="max-height: 300px; overflow-y: auto;">
                         @{ decimal total = 0; }
-                        @if (cart != null)
+                        @if (checkoutCart != null)
                         {
-                            foreach (var item in cart)
+                            foreach (var item in checkoutCart)
                             {
                                 total += item.TotalPrice;
                                 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">

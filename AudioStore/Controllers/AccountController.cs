@@ -42,9 +42,8 @@ namespace AudioStore.Controllers
                 {
                     FullName = FullName,
                     Email = Email,
-                    // Vì form Đăng ký của bạn không có ô Username, ta lấy luôn Email làm Username
-                    Username = Email,
-                    Password = Password, // Lưu ý: Thực tế nên băm (Hash) mật khẩu trước khi lưu
+                    Username = Email, // Lấy luôn Email làm Username
+                    Password = Password,
                     RoleID = 2, // 2 là Customer dựa theo DB của bạn
                     CreatedAt = DateTime.Now
                 };
@@ -70,7 +69,6 @@ namespace AudioStore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Tra cứu bằng Username hoặc Email vì giao diện ghi "Email hoặc Tên đăng nhập"
                 var user = db.Users.FirstOrDefault(u =>
                     (u.Username == UsernameOrEmail || u.Email == UsernameOrEmail) &&
                     u.Password == Password);
@@ -85,8 +83,7 @@ namespace AudioStore.Controllers
                     // Phân quyền chuyển hướng
                     if (user.RoleID == 1) // 1 là Admin
                     {
-                        // Đưa Admin nhảy thẳng vào trang lựa chọn Dashboard vừa tạo
-                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" }); ;
+                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                     }
                     else // 2 là Customer
                     {
@@ -102,8 +99,45 @@ namespace AudioStore.Controllers
         // 3. ĐĂNG XUẤT
         public ActionResult Logout()
         {
+            Session["Cart"] = null; // Xóa giỏ hàng khi đăng xuất
             Session.Clear(); // Xóa toàn bộ Session
             return RedirectToAction("Index", "Home");
+        }
+
+        // 4. XEM LỊCH SỬ ĐƠN HÀNG (BỔ SUNG CHO NÚT "XEM LỊCH SỬ ĐƠN HÀNG")
+        public ActionResult OrderHistory()
+        {
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int currentUserId = 0;
+            if (Session["User"] is Users loggedInUser)
+            {
+                currentUserId = loggedInUser.UserID;
+            }
+            else if (Session["UserID"] != null)
+            {
+                currentUserId = Convert.ToInt32(Session["UserID"]);
+            }
+
+            // Lấy danh sách đơn hàng của đúng user đang đăng nhập, sắp xếp mới nhất lên đầu
+            var orders = db.Orders
+                           .Where(o => o.UserID == currentUserId)
+                           .OrderByDescending(o => o.OrderDate)
+                           .ToList();
+
+            return View(orders);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

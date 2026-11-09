@@ -3,10 +3,25 @@
 }
 
 <div class="container my-5 text-center">
-    <div class="card border-0 shadow-sm p-5 mx-auto" style="max-width: 600px;">
-        <i class="fas fa-check-circle text-success mb-3" style="font-size: 60px;"></i>
+    <div class="card border-0 shadow-sm p-5 mx-auto bg-white rounded-4" style="max-width: 650px;">
+        <div class="mb-4">
+            <span class="display-3 text-success">✔</span>
+        </div>
         <h2 class="fw-bold text-success mb-3">Đặt hàng thành công!</h2>
-        <p class="text-muted fs-5 mb-4">Cảm ơn bạn đã mua sắm tại Audio Store. Đơn hàng của bạn đang được xử lý và sẽ được giao trong thời gian sớm nhất.</p>
-        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark fw-bold px-4 py-2 rounded-pill">Về trang chủ</a>
+        <p class="text-muted mb-4 fs-6">
+            Cảm ơn bạn đã mua sắm tại Audio Store. Đơn hàng của bạn đang được xử lý và sẽ được giao trong thời gian sớm nhất.
+        </p>
+
+        <!-- CỤM NÚT ĐIỀU HƯỚNG SAU KHI ĐẶT HÀNG THÀNH CÔNG -->
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+            <a href="@Url.Action("Index", "Home", new { area = "" })" class="btn btn-dark btn-lg fw-bold px-4 rounded-pill shadow-sm">
+                &larr; Về trang chủ
+            </a>
+
+            <!-- NÚT XEM ĐƠN HÀNG ĐÃ ĐẶT -->
+            <a href="@Url.Action("OrderHistory", "Account", new { area = "" })" class="btn btn-warning btn-lg fw-bold px-4 rounded-pill shadow-sm text-dark">
+                📦 Xem lịch sử đơn hàng
+            </a>
+        </div>
     </div>
 </div>

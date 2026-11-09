@@ -153,23 +153,32 @@
                     </div>
                 }
 
-                <!-- CỤM NÚT MUA HÀNG LIÊN KẾT THÀNH VIÊN 3 -->
-                <div class="d-flex flex-wrap gap-3 mt-4">
+                <!-- CỤM 3 NÚT MUA HÀNG ĐÚNG THỨ TỰ YÊU CẦU -->
+                <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
                     @if (!Model.StockQuantity.HasValue || Model.StockQuantity.Value > 0)
                     {
+                        <!-- 1. Thêm vào giỏ hàng (Giữ nguyên trang, cập nhật số lượng lên header) -->
                         <a href="@Url.Action("AddToCart", "Cart", new { id = Model.ProductID })"
-                           class="btn btn-warning btn-lg fw-bold px-5 rounded-pill shadow-sm text-dark">
+                           class="btn btn-warning btn-lg fw-bold px-4 rounded-pill shadow-sm text-dark d-flex align-items-center gap-2">
                             🛒 THÊM VÀO GIỎ HÀNG
+                        </a>
+
+                        <!-- 2. Thanh toán độc lập (Gọi hàm BuyNow để đưa vào đơn hàng tạm và sang thẳng trang Checkout) -->
+                        <a href="@Url.Action("BuyNow", "Cart", new { id = Model.ProductID })"
+                           class="btn btn-danger btn-lg fw-bold px-4 rounded-pill shadow-sm text-white">
+                            💳 THANH TOÁN
                         </a>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-secondary btn-lg px-5 rounded-pill" disabled>
+                        <button type="button" class="btn btn-secondary btn-lg px-4 rounded-pill" disabled>
                             TẠM HẾT HÀNG
                         </button>
                     }
-                    <a href="@Url.Action("Search", "Home")" class="btn btn-outline-dark btn-lg px-4 rounded-pill">
-                        &larr; Tiếp tục xem sản phẩm
+
+                    <!-- 3. Tiếp tục xem sản phẩm -->
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-lg px-3 rounded-pill text-muted">
+                        – Tiếp tục xem sản phẩm
                     </a>
                 </div>
             </div>
