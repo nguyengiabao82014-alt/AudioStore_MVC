@@ -1,0 +1,116 @@
+﻿@model AudioStore.Models.Orders
+
+@{
+    ViewBag.Title = "Chỉnh sửa đơn hàng #" + Model.OrderID;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">✏️ Chỉnh sửa đơn hàng #@Model.OrderID</h3>
+        <small class="text-muted">Khách hàng: <strong>@(Model.Users != null ? Model.Users.FullName : "User #" + Model.UserID)</strong> | Ngày đặt: @(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</small>
+    </div>
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="btn btn-outline-secondary fw-bold">
+        ← Quay lại danh sách đơn
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- FORM CẬP NHẬT ĐƠN HÀNG -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Thông tin cập nhật</h5>
+
+            @using (Html.BeginForm("Edit", "Orders", new { area = "Admin" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                <input type="hidden" name="OrderID" value="@Model.OrderID" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Trạng thái đơn hàng <span class="text-danger">*</span></label>
+                    <select name="Status" class="form-select fw-semibold">
+                        <option value="Pending" @(Model.Status == "Pending" || Model.Status == "Chờ xử lý" ? "selected" : "")>⏳ Chờ xử lý (Pending)</option>
+                        <option value="Confirmed" @(Model.Status == "Confirmed" || Model.Status == "Đã xác nhận" ? "selected" : "")>👍 Đã xác nhận (Confirmed)</option>
+                        <option value="Shipping" @(Model.Status == "Shipping" || Model.Status == "Đang giao hàng" ? "selected" : "")>🚚 Đang giao hàng (Shipping)</option>
+                        <option value="Completed" @(Model.Status == "Completed" || Model.Status == "Đã giao" ? "selected" : "")>✅ Đã giao thành công (Completed)</option>
+                        <option value="Cancelled" @(Model.Status == "Cancelled" || Model.Status == "Đã hủy" ? "selected" : "")>❌ Đã hủy (Cancelled - Hoàn lại tồn kho)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Phương thức thanh toán</label>
+                    <select name="PaymentMethod" class="form-select">
+                        <option value="COD" @(Model.PaymentMethod == "COD" ? "selected" : "")>Thanh toán khi nhận hàng (COD)</option>
+                        <option value="BankTransfer" @(Model.PaymentMethod == "BankTransfer" ? "selected" : "")>Chuyển khoản ngân hàng (BankTransfer)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Địa chỉ nhận hàng <span class="text-danger">*</span></label>
+                    <textarea name="ShippingAddress" class="form-control" rows="3" required minlength="5">@Model.ShippingAddress</textarea>
+                    @Html.ValidationMessage("ShippingAddress", "", new { @class = "text-danger small fw-bold" })
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary fw-bold py-2">💾 Lưu thay đổi đơn hàng</button>
+                    <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="btn btn-light border">Hủy bỏ</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- DANH SÁCH SẢN PHẨM TRONG ĐƠN HÀNG NÀY -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold m-0">Sản phẩm trong đơn hàng #@Model.OrderID</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-3">Tên sản phẩm</th>
+                            <th class="text-center">Đơn giá</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end pe-3">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.OrderDetails != null)
+                        {
+                            foreach (var detail in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="fw-bold">@(detail.Products != null ? detail.Products.ProductName : "SP #" + detail.ProductID)</div>
+                                        <small class="text-muted">Mã SP: #@detail.ProductID</small>
+                                    </td>
+                                    <td class="text-center">@string.Format("{0:N0} đ", detail.UnitPrice)</td>
+                                    <td class="text-center fw-bold">x @detail.Quantity</td>
+                                    <td class="text-end pe-3 fw-bold text-danger">@string.Format("{0:N0} đ", detail.UnitPrice * detail.Quantity)</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td colspan="3" class="text-end fw-semibold">Tổng tiền gốc:</td>
+                            <td class="text-end pe-3 fw-semibold">@string.Format("{0:N0} đ", Model.TotalAmount)</td>
+                        </tr>
+                        @if (!string.IsNullOrEmpty(Model.DiscountCode))
+                        {
+                            <tr class="text-success">
+                                <td colspan="3" class="text-end fw-semibold">Mã giảm giá (@Model.DiscountCode):</td>
+                                <td class="text-end pe-3 fw-bold">-@string.Format("{0:N0} đ", Model.TotalAmount - Model.FinalAmount)</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold fs-5">Tổng thanh toán:</td>
+                            <td class="text-end pe-3 fw-bold text-danger fs-5">@string.Format("{0:N0} VNĐ", Model.FinalAmount)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,13 +2,10 @@
 
 @{
     ViewBag.Title = "Thanh toán an toàn - Audio Store";
-
-    // PHÂN NHÍCH ĐÚNG NGUỒN DỮ LIỆU: Ưu tiên lấy Session["CheckoutNow"] nếu bấm Mua Ngay, ngược lại lấy giỏ hàng chính
-    var checkoutCart = Session["CheckoutNow"] as List<AudioStore.Models.CartItem> ?? Session["Cart"] as List<AudioStore.Models.CartItem> ?? new List<AudioStore.Models.CartItem>();
-
-    // Kiểm tra xem có đang ở luồng mua ngay độc lập hay không để trỏ Action form cho đúng
-    bool isBuyNowFlow = Session["CheckoutNow"] != null;
-    string postActionName = isBuyNowFlow ? "CheckoutNow" : "Checkout";
+    var checkoutNow = Session["CheckoutNow"] as List<AudioStore.Models.CartItem>;
+    var cart = (checkoutNow != null && checkoutNow.Count > 0)
+        ? checkoutNow
+        : Session["Cart"] as List<AudioStore.Models.CartItem>;
 }
 
 <div class="container my-5">
@@ -18,36 +15,36 @@
             <div class="card border-0 shadow-sm p-4">
                 <h4 class="fw-bold mb-4" style="color: #232f3e;"><i class="fas fa-lock me-2"></i>Thông tin nhận hàng</h4>
 
-                @using (Html.BeginForm(postActionName, "Cart", FormMethod.Post, new { @id = "checkoutForm" }))
+                @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post, new { @id = "checkoutForm" }))
                 {
                     @Html.AntiForgeryToken()
                     @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
 
                     <!-- TRƯỜNG ẨN HỨNG MÃ GIẢM GIÁ GỬI LÊN SERVER -->
-                    <input type="hidden" id="hiddenDiscountCode" name="DiscountCode" value="" />
+                    <input type="hidden" id="hiddenDiscountCode" name="DiscountCode" value="@(Model != null ? Model.DiscountCode : "")" />
 
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control input-amazon", placeholder = "Nhập tên người nhận (VD: Nguyễn Văn A)", autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control input-amazon", placeholder = "Nhập tên người nhận (VD: Nguyễn Văn A)", required = "required", autocomplete = "off" })
                             @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control input-amazon", placeholder = "09xxxxxxxx", type = "tel", autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control input-amazon", placeholder = "09xxxxxxxx", type = "tel", required = "required", autocomplete = "off" })
                             @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control input-amazon", placeholder = "email@domain.com", type = "email", autocomplete = "off" })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control input-amazon", placeholder = "email@domain.com", type = "email", required = "required", autocomplete = "off" })
                             @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
                         </div>
 
                         <div class="col-12">
                             <label class="form-label fw-semibold">Địa chỉ giao hàng chi tiết <span class="text-danger">*</span></label>
-                            @Html.TextAreaFor(m => m.ShippingAddress, new { @class = "form-control input-amazon", rows = "3", placeholder = "Số nhà, Tên đường, Phường/Xã, Quận/Huyện..." })
+                            @Html.TextAreaFor(m => m.ShippingAddress, new { @class = "form-control input-amazon", rows = "3", required = "required", placeholder = "Số nhà, Tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố..." })
                             @Html.ValidationMessageFor(m => m.ShippingAddress, "", new { @class = "text-danger small fw-bold mt-1 d-block" })
                         </div>
 
@@ -83,18 +80,12 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm" style="background-color: #f8f9fa;">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">
-                        Tóm tắt đơn hàng
-                        @if (isBuyNowFlow)
-                        {
-                            <span class="badge bg-danger fs-6 float-end">Mua Ngay</span>
-                        }
-                    </h5>
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Tóm tắt đơn hàng</h5>
                     <div class="product-list-summary mb-3" style="max-height: 300px; overflow-y: auto;">
                         @{ decimal total = 0; }
-                        @if (checkoutCart != null)
+                        @if (cart != null)
                         {
-                            foreach (var item in checkoutCart)
+                            foreach (var item in cart)
                             {
                                 total += item.TotalPrice;
                                 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
@@ -113,7 +104,6 @@
                         <input type="text" id="inputDiscountCode" class="form-control input-amazon" placeholder="Nhập mã giảm giá" autocomplete="off" maxlength="50">
                         <button type="button" id="btnApplyDiscount" class="btn btn-dark fw-bold">Áp dụng</button>
                     </div>
-                    <!-- Dòng thông báo trạng thái mã giảm giá trực tiếp dưới ô nhập -->
                     <div id="discountMessage" class="small fw-bold mb-3 d-none"></div>
 
                     <!-- TẠM TÍNH -->
@@ -139,7 +129,6 @@
     </div>
 </div>
 
-<!-- ĐẶT TRỰC TIẾP SCRIPT THUẦN TẠI ĐÂY ĐỂ CHẠY ĐỘC LẬP 100% KHÔNG SỢ LỖI LAYOUT -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var payCOD = document.getElementById("payCOD");
@@ -153,7 +142,6 @@
         var finalAmountText = document.getElementById("finalAmountText");
         var discountMessage = document.getElementById("discountMessage");
 
-        // 1. Ẩn / Hiện mã QR khi chuyển đổi phương thức thanh toán
         function toggleQR() {
             if (payBank && payBank.checked) {
                 qrContainer.classList.remove("d-none");
@@ -163,15 +151,14 @@
         }
         if (payCOD) payCOD.addEventListener("change", toggleQR);
         if (payBank) payBank.addEventListener("change", toggleQR);
+        toggleQR();
 
-        // 2. Chặn ký tự đặc biệt/khoảng trắng khi gõ mã giảm giá (chỉ cho phép chữ và số, tự viết hoa)
         if (inputDiscount) {
             inputDiscount.addEventListener("input", function () {
                 this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             });
         }
 
-        // 3. Xử lý khi bấm nút Áp dụng mã giảm giá
         if (btnApply) {
             btnApply.addEventListener("click", function () {
                 var code = inputDiscount.value.trim();

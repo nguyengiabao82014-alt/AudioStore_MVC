@@ -1,46 +1,82 @@
 ﻿@{
-    ViewBag.Title = "Đăng ký";
+    ViewBag.Title = "Đăng Ký - AudioStore";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5" style="max-width: 450px;">
-    @* Thay thế thẻ <form> bằng cú pháp Razor chuẩn *@
-    @using (Html.BeginForm("Register", "Account", FormMethod.Post))
-    {
-        @* BẮT BUỘC: Mã bảo mật chống giả mạo *@
-        @Html.AntiForgeryToken()
+<div class="d-flex justify-content-center align-items-center py-5" style="min-height: 85vh; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%);">
+    <div class="card border-0 rounded-4 shadow-lg p-4 p-md-5 bg-white position-relative" style="width: 100%; max-width: 440px;">
 
-        <fieldset class="border p-4 rounded shadow-sm bg-white">
-            <legend class="w-auto px-2 font-weight-bold text-danger">Đăng Ký Tài Khoản</legend>
+        <!-- Brand Title & Tab Switcher -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark tracking-wider mb-1" style="letter-spacing: 1px;">Audio<span class="text-danger">Store</span></h2>
+            <p class="text-muted small mb-4">Premium Audio & Equipment</p>
 
-            @* Hiển thị cảnh báo lỗi nếu có (trùng email, pass không khớp) *@
-            @if (ViewBag.Error != null)
+            <!-- Tab chuyển đổi qua lại giữa Đăng nhập và Đăng ký -->
+            <div class="d-flex justify-content-center border-bottom pb-2 mb-4">
+                <a href="@Url.Action("Login", "Account")" class="fw-semibold text-muted pb-2 px-3 text-decoration-none">ĐĂNG NHẬP</a>
+                <span class="fw-bold text-dark pb-2 border-bottom border-dark border-3 px-3">ĐĂNG KÝ</span>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "needs-validation" }))
+        {
+            @Html.AntiForgeryToken()
+
+            if (ViewBag.Error != null)
             {
-                <div class="alert alert-danger" style="font-size: 14px;">
-                    @ViewBag.Error
-                </div> 
+                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger py-2 px-3 small mb-3 rounded-3 d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <div>@ViewBag.Error</div>
+                </div>
             }
 
-            <div class="form-group mb-3">
-                <label>Họ và tên</label>
-                <input type="text" name="FullName" class="form-control" required placeholder="Nhập họ và tên..." />
+            <!-- Họ và tên (Lưu ý: Nếu Controller của bạn dùng tên biến khác như Name hoặc HoTen thì bạn đổi lại thuộc tính name cho khớp nhé) -->
+            <div class="mb-3">
+                <label class="form-label text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">HỌ VÀ TÊN</label>
+                <input type="text" name="FullName" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Nhập họ và tên của quý khách..." autocomplete="off" style="font-size: 0.9rem;" />
             </div>
 
-            <div class="form-group mb-3">
-                <label>Email</label>
-                <input type="email" name="Email" class="form-control" required placeholder="Nhập địa chỉ email..." />
+            <!-- Email -->
+            <div class="mb-3">
+                <label class="form-label text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">EMAIL</label>
+                <input type="email" name="Email" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Nhập địa chỉ email..." autocomplete="off" style="font-size: 0.9rem;" />
             </div>
 
-            <div class="form-group mb-3">
-                <label>Mật khẩu</label>
-                <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
+            <!-- Mật khẩu -->
+            <div class="mb-3">
+                <label class="form-label text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">MẬT KHẨU</label>
+                <input type="password" name="Password" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Nhập mật khẩu..." style="font-size: 0.9rem;" />
             </div>
 
-            <div class="form-group mb-3">
-                <label>Nhập lại mật khẩu</label>
-                <input type="password" name="ConfirmPassword" class="form-control" required placeholder="Xác nhận lại mật khẩu..." />
+            <!-- Nhập lại mật khẩu -->
+            <div class="mb-4">
+                <label class="form-label text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">NHẬP LẠI MẬT KHẨU</label>
+                <input type="password" name="ConfirmPassword" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Xác nhận lại mật khẩu..." style="font-size: 0.9rem;" />
             </div>
 
-            <button type="submit" class="btn btn-danger w-100">Đăng Ký</button>
-        </fieldset>
-    }
+            <!-- Nút Đăng Ký -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn text-white py-3 fw-bold rounded-3 shadow-sm" style="background-color: #111827; transition: all 0.2s ease; font-size: 0.9rem;">
+                    Đăng Ký Tài Khoản
+                </button>
+            </div>
+
+            <!-- Chuyển nhanh về trang đăng nhập -->
+            <div class="text-center mt-3">
+                <p class="text-muted small mb-0">Đã có tài khoản trên hệ thống? <a href="@Url.Action("Login", "Account")" class="text-danger fw-bold text-decoration-none">Đăng nhập ngay</a></p>
+            </div>
+        }
+    </div>
 </div>
+
+<style>
+    .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.2) !important;
+    }
+
+    .btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+</style>

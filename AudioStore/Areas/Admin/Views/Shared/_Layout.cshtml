@@ -1,37 +1,156 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <title>@ViewBag.Title - Quản trị AudioStore</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-navbar {
+            background-color: #131921;
+            border-bottom: 3px solid #ffbd00;
+            padding: 10px 24px;
+        }
+
+        .admin-brand {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            margin-right: 25px;
+        }
+
+            .admin-brand span {
+                color: #ffbd00;
+            }
+
+            .admin-brand:hover {
+                color: #ffffff;
+            }
+
+        .admin-nav-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+            .admin-nav-link:hover {
+                background-color: #232f3e;
+                color: #ffbd00;
+            }
+
+        .admin-content {
+            flex: 1;
+            padding: 25px 0;
+        }
+
+        .admin-footer {
+            background-color: #232f3e;
+            color: #ffffff;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        /* Hỗ trợ các view CRUD cũ dùng class btn-xs, btn-default của Bootstrap 3 */
+        .btn-xs {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.78rem;
+            border-radius: 0.25rem;
+        }
+
+        .btn-default {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+            .btn-default:hover {
+                background-color: #5c636a;
+                color: #fff;
+            }
+
+        .label {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .label-success {
+            background-color: #198754;
+        }
+
+        .label-default {
+            background-color: #6c757d;
+        }
+
+        .label-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+    </style>
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                </ul>
-            </div>
+    <!-- THANH ĐIỀU HƯỚNG QUẢN TRỊ ADMIN -->
+    <header class="admin-navbar d-flex flex-wrap align-items-center justify-content-between">
+        <div class="d-flex flex-wrap align-items-center gap-1">
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="admin-brand">
+                Audio<span>Store</span> <small class="badge bg-warning text-dark" style="font-size: 11px;">ADMIN</small>
+            </a>
+
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="admin-nav-link">📊 Bảng điều khiển</a>
+            <a href="@Url.Action("Index", "Orders", new { area = "Admin" })" class="admin-nav-link" style="color: #ffbd00;">🧾 Quản lý Đơn hàng</a>
+            <a href="@Url.Action("Index", "Products", new { area = "Admin" })" class="admin-nav-link">📦 Sản phẩm</a>
+            <a href="@Url.Action("Index", "Categories", new { area = "Admin" })" class="admin-nav-link">📂 Danh mục</a>
+            <a href="@Url.Action("Index", "Brands", new { area = "Admin" })" class="admin-nav-link">🏷️ Thương hiệu</a>
+            <a href="@Url.Action("Index", "DiscountCodes", new { area = "Admin" })" class="admin-nav-link">🎟️ Mã giảm giá</a>
         </div>
+
+        <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+            <span class="text-light small me-2">
+                Quản trị viên: <strong class="text-warning">@(Session["FullName"] ?? "Admin")</strong>
+            </span>
+            <a href="@Url.Action("Index", "Home", new { area = "" })" class="btn btn-sm btn-outline-light fw-bold">
+                🏠 Xem trang bán hàng
+            </a>
+            <a href="@Url.Action("Logout", "Account", new { area = "" })" class="btn btn-sm btn-danger fw-bold">
+                Đăng xuất
+            </a>
+        </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <div class="container admin-content">
+        @RenderBody()
     </div>
 
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    <!-- FOOTER ADMIN -->
+    <footer class="admin-footer">
+        <div class="container">
+            <span>&copy; @DateTime.Now.Year - Hệ thống Quản trị AudioStore MVC</span>
+        </div>
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
