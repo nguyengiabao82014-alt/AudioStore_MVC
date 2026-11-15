@@ -1,70 +1,101 @@
 ﻿@model IEnumerable<AudioStore.Models.Orders>
 
 @{
-    ViewBag.Title = "Lịch sử đơn hàng của tôi";
+    ViewBag.Title = "Lịch sử đơn hàng - Audio Store";
 }
 
 <div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-        <h3 class="fw-bold text-dark m-0">📦 Lịch Sử Đơn Hàng Đã Đặt</h3>
-        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm fw-semibold">&larr; Tiếp tục mua sắm</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0" style="color: #232f3e;">📦 Lịch sử đơn hàng của bạn</h3>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm fw-bold">← Tiếp tục mua sắm</a>
     </div>
 
     @if (Model == null || !Model.Any())
     {
-        <div class="card border-0 shadow-sm p-5 text-center bg-white rounded-4">
-            <h5 class="text-muted mb-3">Bạn chưa có đơn hàng nào trong lịch sử!</h5>
+        <div class="card border-0 shadow-sm p-5 text-center">
+            <h5 class="text-muted mb-3">Bạn chưa có đơn hàng nào tại Audio Store.</h5>
             <div>
-                <a href="@Url.Action("Index", "Home")" class="btn btn-warning fw-bold px-4 rounded-pill text-dark">Khám phá sản phẩm ngay</a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-warning fw-bold px-4">Khám phá sản phẩm ngay</a>
             </div>
         </div>
     }
     else
     {
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-dark text-uppercase small">
-                        <tr>
-                            <th class="py-3 ps-4">Mã Đơn</th>
-                            <th class="py-3">Ngày Đặt</th>
-                            <th class="py-3">Địa Chỉ Giao Hàng</th>
-                            <th class="py-3">Hình Thức Thanh Toán</th>
-                            <th class="py-3 text-end">Tổng Tiền</th>
-                            <th class="py-3 text-center">Trạng Thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var order in Model)
-                        {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
                             <tr>
-                                <td class="ps-4 fw-bold text-primary">#@order.OrderID</td>
-                                <td>@(order.OrderDate.HasValue ? order.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
-                                <td>
-                                    <span class="text-truncate d-inline-block" style="max-width: 250px;" title="@order.ShippingAddress">
-                                        @order.ShippingAddress
-                                    </span>
-                                </td>
-                                <td>
-                                    @if (order.PaymentMethod == "COD")
-                                    {
-                                        <span class="badge bg-secondary">Thanh toán COD</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-info text-dark">Chuyển khoản QR</span>
-                                    }
-                                </td>
-                                <td class="text-end fw-bold text-danger">
-                                    @string.Format("{0:N0}", order.FinalAmount) đ
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Đang xử lý</span>
-                                </td>
+                                <th class="ps-4">Mã ĐH</th>
+                                <th>Ngày đặt</th>
+                                <th>Địa chỉ nhận hàng</th>
+                                <th>Thanh toán</th>
+                                <th class="text-end">Tổng tiền</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center pe-4">Thao tác</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                string badgeClass = "bg-secondary";
+                                string statusText = item.Status ?? "Pending";
+
+                                if (statusText == "Pending" || statusText == "Chờ xử lý")
+                                {
+                                    badgeClass = "bg-warning text-dark";
+                                    statusText = "Chờ xử lý";
+                                }
+                                else if (statusText == "Confirmed" || statusText == "Đã xác nhận")
+                                {
+                                    badgeClass = "bg-info text-dark";
+                                    statusText = "Đã xác nhận";
+                                }
+                                else if (statusText == "Shipping" || statusText == "Đang giao" || statusText == "Đang giao hàng")
+                                {
+                                    badgeClass = "bg-primary";
+                                    statusText = "Đang giao hàng";
+                                }
+                                else if (statusText == "Completed" || statusText == "Đã giao" || statusText == "Hoàn thành")
+                                {
+                                    badgeClass = "bg-success";
+                                    statusText = "Đã giao thành công";
+                                }
+                                else if (statusText == "Cancelled" || statusText == "Đã hủy")
+                                {
+                                    badgeClass = "bg-danger";
+                                    statusText = "Đã hủy";
+                                }
+
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">#@item.OrderID</td>
+                                    <td>@(item.OrderDate.HasValue ? item.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
+                                    <td style="max-width: 260px;" class="text-truncate" title="@item.ShippingAddress">@item.ShippingAddress</td>
+                                    <td>
+                                        @if (item.PaymentMethod == "BankTransfer")
+                                        {
+                                            <span class="badge bg-light text-dark border">Chuyển khoản</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-dark border">COD</span>
+                                        }
+                                    </td>
+                                    <td class="text-end fw-bold text-danger">@string.Format("{0:N0} đ", item.FinalAmount)</td>
+                                    <td class="text-center">
+                                        <span class="badge @badgeClass px-3 py-2">@statusText</span>
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <a href="@Url.Action("OrderDetails", "Account", new { id = item.OrderID })" class="btn btn-sm btn-warning fw-bold text-dark shadow-sm">
+                                            👁️ Xem chi tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     }

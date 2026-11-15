@@ -7,17 +7,16 @@ using System.Web;
 namespace AudioStore.Models
 {
     // =========================================================================================
-    // 1. CHECKOUT VIEW MODEL - BỨC TƯỜNG LỬA CHO TRANG THANH TOÁN
+    // 1. CHECKOUT VIEW MODEL - KIỂM TRA HỢP LỆ THÔNG TIN NHẬN HÀNG (TƯƠNG THÍCH CẢ JS & C#)
     // =========================================================================================
     public class CheckoutViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập họ và tên người nhận.")]
-        [StringLength(100, MinimumLength = 5, ErrorMessage = "Tên phải từ 5 đến 100 ký tự.")]
-        [RegularExpression(@"^[\p{L}]+\s+[\p{L}\s]+$", ErrorMessage = "Vui lòng nhập đầy đủ Họ và Tên (phải có khoảng trắng, không chứa số hay ký tự đặc biệt).")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Họ và tên phải từ 2 đến 100 ký tự.")]
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Số điện thoại là bắt buộc.")]
-        [RegularExpression(@"^(0[3|5|7|8|9])+([0-9]{8})$", ErrorMessage = "Số điện thoại không hợp lệ (VD: 0912345678).")]
+        [RegularExpression(@"^0[0-9]{9,10}$", ErrorMessage = "Số điện thoại không hợp lệ (gồm 10-11 chữ số, bắt đầu bằng số 0).")]
         public string Phone { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ Email.")]
@@ -26,8 +25,7 @@ namespace AudioStore.Models
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ giao hàng chi tiết.")]
-        [StringLength(500, MinimumLength = 15, ErrorMessage = "Địa chỉ quá ngắn, vui lòng ghi rõ số nhà, tên đường, phường/xã.")]
-        [RegularExpression(@"^[\p{L}0-9,.-/]+(?:\s+[\p{L}0-9,.-/]+){2,}$", ErrorMessage = "Địa chỉ phải bao gồm ít nhất 3 từ (VD: 123 Lê Lợi, Quận 1).")]
+        [StringLength(500, MinimumLength = 5, ErrorMessage = "Vui lòng nhập địa chỉ cụ thể hơn (tối thiểu 5 ký tự).")]
         public string ShippingAddress { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn phương thức thanh toán.")]
@@ -43,12 +41,12 @@ namespace AudioStore.Models
     [MetadataType(typeof(OrderMetadata))]
     public partial class Orders
     {
-        // Để trống, chỉ dùng để gắn cầu nối Metadata
     }
 
     public class OrderMetadata
     {
-        [Required(ErrorMessage = "Hệ thống thiếu địa chỉ giao hàng.")]
+        [Required(ErrorMessage = "Vui lòng nhập địa chỉ giao hàng.")]
+        [StringLength(500, MinimumLength = 5, ErrorMessage = "Địa chỉ giao hàng phải từ 5 đến 500 ký tự.")]
         public string ShippingAddress { get; set; }
 
         [Required(ErrorMessage = "Hệ thống thiếu phương thức thanh toán.")]
@@ -68,7 +66,6 @@ namespace AudioStore.Models
     [MetadataType(typeof(DiscountCodeMetadata))]
     public partial class DiscountCodes
     {
-        // Để trống, gắn cầu nối Metadata cho bảng DiscountCodes
     }
 
     public class DiscountCodeMetadata
@@ -79,6 +76,6 @@ namespace AudioStore.Models
 
         [Required(ErrorMessage = "Phần trăm giảm là bắt buộc.")]
         [Range(1, 100, ErrorMessage = "Phần trăm giảm giá phải nằm trong khoảng từ 1% đến 100%.")]
-        public decimal DiscountPercent { get; set; }
+        public int DiscountPercent { get; set; }
     }
 }

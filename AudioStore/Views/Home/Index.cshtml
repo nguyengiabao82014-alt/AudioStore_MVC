@@ -1,94 +1,152 @@
 @model IEnumerable<AudioStore.Models.Products>
+
 @{
-    ViewBag.Title = "Trang chủ";
+    ViewBag.Title = "Trang chủ - Audio Store";
     var categories = ViewBag.Categories as List<AudioStore.Models.Categories> ?? new List<AudioStore.Models.Categories>();
     var brands = ViewBag.Brands as List<AudioStore.Models.Brands> ?? new List<AudioStore.Models.Brands>();
+    var discounts = ViewBag.DiscountCodes as List<AudioStore.Models.DiscountCodes> ?? new List<AudioStore.Models.DiscountCodes>();
+    bool isAdmin = Session["RoleID"] != null && Convert.ToInt32(Session["RoleID"]) == 1;
+
+    var allProducts = Model != null ? Model.ToList() : new List<AudioStore.Models.Products>();
+    var speakerProducts = allProducts.Where(p =>
+        (p.Categories != null && (p.Categories.CategoryName.ToLower().Contains("loa") || (p.Categories.ParentType != null && p.Categories.ParentType.ToLower().Contains("speaker")))) ||
+        p.ProductName.ToLower().Contains("loa") || p.ProductName.ToLower().Contains("marshall") || p.ProductName.ToLower().Contains("partybox")
+    ).Take(4).ToList();
+
+    var headphoneProducts = allProducts.Where(p =>
+        !speakerProducts.Select(s => s.ProductID).Contains(p.ProductID)
+    ).Take(4).ToList();
 }
 
 @functions {
-    public string ResolveProductImage(string rawImageUrl)
+    public string GetFirstProductImage(string rawImageUrl)
     {
         if (string.IsNullOrWhiteSpace(rawImageUrl))
-        {
-            return "https://via.placeholder.com/300x300?text=Audio+Store";
-        }
+            return "https://via.placeholder.com/300x300?text=AudioStore";
 
         var parts = rawImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
-        {
-            return "https://via.placeholder.com/300x300?text=Audio+Store";
-        }
+            return "https://via.placeholder.com/300x300?text=AudioStore";
 
         string img = parts[0].Trim();
-        if (!img.Contains("."))
-        {
-            img += ".webp";
-        }
-
-        if (img.StartsWith("http") || img.StartsWith("/"))
-        {
+        if (img.StartsWith("http://") || img.StartsWith("https://"))
             return img;
-        }
-        if (img.StartsWith("~"))
-        {
-            return Url.Content(img);
-        }
 
-        return Url.Content("~/Content/Images/products/" + img);
+        if (!img.Contains("."))
+            img += ".webp";
+
+        if (img.StartsWith("~/"))
+            img = img.Substring(1);
+
+        if (!img.StartsWith("/"))
+            img = "/Content/Images/products/" + img;
+
+        return img;
     }
 }
 
-<!-- 1. HERO BANNER CHÍNH -->
-<div class="container mt-4">
-    <div class="hero-banner rounded-4 p-4 p-md-5 text-white shadow-sm d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="hero-text" style="max-width: 580px;">
-            <span class="badge bg-warning text-dark fw-bold px-3 py-2 mb-3 rounded-pill">🔥 KHUYẾN MÃI ĐẶC BIỆT 2026</span>
-            <h1 class="fw-bold display-6 mb-3">Đánh Thức Mọi Giác Quan Với Âm Thanh Đỉnh Cao</h1>
-            <p class="text-light mb-4 fs-6">
-                Trải nghiệm bộ sưu tập Loa Bluetooth, Tai nghe chống ồn chủ động và Micro phòng thu chính hãng từ Marshall, JBL, Harman/Kardon, Sony. Nhập mã <strong>SUMMER2026</strong> tại trang thanh toán để nhận ngay ưu đãi!
-            </p>
-            <div class="d-flex flex-wrap gap-3">
-                <a href="@Url.Action("Search", "Home", new { isPromotion = true, sortOrder = "price_asc" })" class="btn btn-warning btn-lg fw-bold text-dark px-4 rounded-pill">
-                    Săn Deal Giảm Giá &rarr;
-                </a>
-                <a href="@Url.Action("Search", "Home", new { isWireless = true })" class="btn btn-outline-light btn-lg fw-semibold px-4 rounded-pill">
-                    Thiết Bị Không Dây
-                </a>
+<div class="container my-4">
+
+    <!-- =========================================================================
+         1. HERO BANNER ĐỈNH CAO (GIỮ NGUYÊN PHONG CÁCH & NÂNG CẤP HIỆU ỨNG)
+         ========================================================================= -->
+    <div class="hero-banner-wrap rounded-4 shadow p-4 p-lg-5 mb-3 position-relative overflow-hidden">
+        <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+            <div class="col-lg-7 text-white">
+                <span class="badge rounded-pill px-3 py-2 fw-bold mb-3" style="background-color: #ffbd00; color: #131921; font-size: 12px;">
+                    ⚡ KHUYẾN MÃI ĐẶC BIỆT 2026
+                </span>
+                <h1 class="fw-extrabold mb-3" style="font-size: 2.35rem; line-height: 1.2; font-weight: 800;">
+                    Đánh Thức Mọi Giác Quan Với <br /><span style="color: #ffbd00;">Âm Thanh Đỉnh Cao</span>
+                </h1>
+                <p class="text-light opacity-75 mb-4" style="font-size: 15px; max-width: 580px; line-height: 1.6;">
+                    Trải nghiệm bộ sưu tập Loa Bluetooth, Tai nghe chống ồn chủ động và Micro phòng thu chính hãng từ Marshall, JBL, Harman/Kardon, Sony. Nhập mã <strong class="text-warning">SUMMER2026</strong> tại trang thanh toán để nhận ngay ưu đãi!
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#products" class="btn px-4 py-2 rounded-pill fw-bold shadow-sm" style="background-color: #ffbd00; color: #131921;">
+                        Săn Deal Giảm Giá &rarr;
+                    </a>
+                    <a href="@Url.Action("Search", "Home", new { isWireless = true })" class="btn btn-outline-light px-4 py-2 rounded-pill fw-semibold">
+                        Thiết Bị Không Dây
+                    </a>
+                    
+                </div>
+            </div>
+            <div class="col-lg-5 text-center">
+                <img src="https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=700&q=80"
+                     alt="AudioStore Speaker"
+                     class="img-fluid rounded-4 shadow-lg hero-speaker-img"
+                     style="max-height: 290px; object-fit: cover; border: 2px solid rgba(255,189,0,0.35);" />
             </div>
         </div>
-        <div class="hero-image mt-4 mt-md-0 text-center">
-            <img src="https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=500&q=80"
-                 alt="Hero Audio Speaker"
-                 class="img-fluid rounded-4 shadow-lg"
-                 style="max-height: 260px; object-fit: cover;" />
+        <!-- Hiệu ứng ánh sáng nền -->
+        <div class="hero-glow-circle"></div>
+    </div>
+
+    <!-- =========================================================================
+         2. DẢI 4 CAM KẾT VÀNG (SERVICE TRUST BAR)
+         ========================================================================= -->
+    <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
+        <div class="col">
+            <div class="trust-card bg-white rounded-3 p-3 shadow-sm d-flex align-items-center gap-3 h-100">
+                <div class="trust-icon">🚚</div>
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 13.5px;">Giao Hàng Siêu Tốc 2H</div>
+                    <div class="text-muted" style="font-size: 12px;">Miễn phí nội thành đơn từ 1 triệu</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="trust-card bg-white rounded-3 p-3 shadow-sm d-flex align-items-center gap-3 h-100">
+                <div class="trust-icon">🛡️</div>
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 13.5px;">Bảo Hành Chính Hãng 100%</div>
+                    <div class="text-muted" style="font-size: 12px;">Cam kết 12 tháng 1 đổi 1 trong 30 ngày</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="trust-card bg-white rounded-3 p-3 shadow-sm d-flex align-items-center gap-3 h-100">
+                <div class="trust-icon">🎧</div>
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 13.5px;">Trải Nghiệm Âm Thanh Thật</div>
+                    <div class="text-muted" style="font-size: 12px;">Đầy đủ Video test âm & thông số chi tiết</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="trust-card bg-white rounded-3 p-3 shadow-sm d-flex align-items-center gap-3 h-100">
+                <div class="trust-icon">🎟️</div>
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 13.5px;">Ưu Đãi Voucher Mỗi Ngày</div>
+                    <div class="text-muted" style="font-size: 12px;">Áp dụng trực tiếp khi thanh toán</div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 2. DẢI THƯƠNG HIỆU ĐỐI TÁC -->
-<div class="container my-4">
-    <div class="brand-bar shadow-sm">
-        <a href="@Url.Action("Search", "Home")" class="brand-item text-decoration-none">TẤT CẢ HÃNG</a>
-        @if (brands.Any())
+    <!-- =========================================================================
+         3. THANH THƯƠNG HIỆU ĐỐI TÁC (BRAND BAR)
+         ========================================================================= -->
+    <div class="brand-bar bg-white rounded-3 shadow-sm p-3 mb-3 d-flex justify-content-around align-items-center flex-wrap gap-2">
+        <a href="@Url.Action("Search", "Home")" class="brand-pill active">TẤT CẢ HÃNG</a>
+        @foreach (var b in brands)
         {
-            foreach (var b in brands)
-            {
-                <a href="@Url.Action("Search", "Home", new { brandId = b.BrandID })" class="brand-item text-decoration-none">
-                    @b.BrandName.ToUpper()
-                </a>
-            }
+            <a href="@Url.Action("Search", "Home", new { brandId = b.BrandID })" class="brand-pill">
+                @b.BrandName.ToUpper()
+            </a>
         }
     </div>
-</div>
 
-<!-- 3. BỘ LỌC NHANH TRÊN TRANG CHỦ -->
-<div class="container mb-4">
-    <div class="card border-0 shadow-sm p-3 bg-white rounded-3">
-        <form action="@Url.Action("Search", "Home")" method="get" class="row g-2 align-items-center">
-            <div class="col-md-3">
+    <!-- =========================================================================
+         4. THANH BỘ LỌC NHANH NẰM NGANG TRÊN TRANG CHỦ
+         ========================================================================= -->
+    <form action="@Url.Action("Search", "Home")" method="get" class="bg-white rounded-3 shadow-sm p-3 mb-4 border">
+        <div class="row g-2 align-items-center">
+            <div class="col-lg-3 col-md-6">
                 <input type="text" name="keyword" class="form-control form-control-sm" placeholder="Nhập tên loa, tai nghe, micro..." />
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-6">
                 <select name="categoryId" class="form-select form-select-sm">
                     <option value="">-- Danh mục --</option>
                     @foreach (var c in categories)
@@ -97,7 +155,7 @@
                     }
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
                 <select name="brandId" class="form-select form-select-sm">
                     <option value="">-- Thương hiệu --</option>
                     @foreach (var b in brands)
@@ -106,291 +164,518 @@
                     }
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
                 <select name="isWireless" class="form-select form-select-sm">
                     <option value="">-- Kết nối --</option>
                     <option value="true">Không dây (Wireless)</option>
                     <option value="false">Có dây (Wired)</option>
                 </select>
             </div>
-            <div class="col-md-3 d-flex gap-2">
+            <div class="col-lg-3 col-md-4 d-flex gap-2">
                 <button type="submit" class="btn btn-dark btn-sm fw-bold flex-grow-1">⚡ Lọc sản phẩm</button>
                 <a href="@Url.Action("Search", "Home")" class="btn btn-outline-secondary btn-sm">Bộ lọc đầy đủ</a>
             </div>
-        </form>
-    </div>
-</div>
-
-<!-- 4. DANH SÁCH SẢN PHẨM NỔI BẬT -->
-<div class="container my-4" id="products">
-    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-        <h4 class="fw-bold m-0 text-dark">🎧 Sản Phẩm Nổi Bật &amp; Khuyến Mãi</h4>
-        <a href="@Url.Action("Search", "Home", new { isPromotion = true })" class="text-danger text-decoration-none fw-bold small">
-            Xem tất cả (@Model.Count() sản phẩm) &rarr;
-        </a>
-    </div>
-
-    @if (!Model.Any())
-    {
-        <div class="alert alert-warning text-center p-4">
-            Hiện chưa có sản phẩm nào trong cơ sở dữ liệu.
         </div>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            @foreach (var item in Model.Take(8))
+    </form>
+
+    <!-- =========================================================================
+         5. TRẠM SĂN MÃ VOUCHER & FLASH DEAL (CÓ ĐỒNG HỒ ĐẾM NGƯỢC & NÚT COPY MÃ)
+         ========================================================================= -->
+    <div class="voucher-station rounded-4 p-3 p-md-4 mb-4 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fs-4">🔥</span>
+                <div>
+                    <h5 class="fw-bold text-white m-0">Trạm Săn Mã Giảm Giá & Flash Deal Trong Ngày</h5>
+                    <small class="text-warning">Sao chép mã bên dưới và dán vào bước Thanh toán để được giảm tiền trực tiếp!</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 bg-dark px-3 py-2 rounded-pill border border-warning">
+                <span class="text-light small fw-semibold">⏳ Kết thúc sau:</span>
+                <span id="flashCountdown" class="fw-bold text-warning" style="letter-spacing: 1px;">08 : 45 : 59</span>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+            @if (discounts.Any())
             {
-                string imgSrc = ResolveProductImage(item.ImageUrl);
-                decimal oldPrice = item.Price * 1.15m;
-
-                <div class="col">
-                    <div class="pro-card h-100 position-relative d-flex flex-column">
-                        <div class="badge-group">
-                            <span class="badge bg-danger">GIẢM 15%</span>
-                            @if (item.IsWireless == true)
-                            {
-                                <span class="badge bg-dark">Wireless</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Wired</span>
-                            }
-                        </div>
-
-                        <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="pro-img-wrapper text-center p-3 d-block text-decoration-none">
-                            <img src="@imgSrc"
-                                 alt="@item.ProductName"
-                                 class="pro-img"
-                                 onerror="this.src='https://via.placeholder.com/300x300?text=Audio+Store';" />
-                        </a>
-
-                        <div class="pro-body d-flex flex-column flex-grow-1 p-3 pt-0">
-                            <div class="text-muted small mb-1">
-                                @(item.Brands != null ? item.Brands.BrandName : "AudioStore") &bull;
-                                @(item.Categories != null ? item.Categories.CategoryName : "Thiết bị âm thanh")
+                foreach (var d in discounts.Take(3))
+                {
+                    <div class="col">
+                        <div class="voucher-card bg-white rounded-3 p-3 d-flex justify-content-between align-items-center shadow-sm h-100">
+                            <div>
+                                <span class="badge bg-danger mb-1">GIẢM @d.DiscountPercent%</span>
+                                <div class="fw-bold text-dark fs-6">Mã: <span class="text-primary">@d.Code</span></div>
+                                <div class="text-muted" style="font-size: 11.5px;">
+                                    Đơn tối thiểu: @(d.MinOrderValue.HasValue ? string.Format("{0:N0}đ", d.MinOrderValue.Value) : "0đ")
+                                    @(d.MaxDiscountAmount.HasValue ? " • Tối đa " + string.Format("{0:N0}đ", d.MaxDiscountAmount.Value) : "")
+                                </div>
                             </div>
-
-                            <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none">
-                                <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
-                            </a>
-
-                            <!-- DÒNG HIỂN THỊ SAO & CÒN HÀNG -->
-                            <div class="rating-stars mb-2">
-                                <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
-                                {
-                                    <span class="text-success small fw-bold ms-1">&bull; Còn hàng (@(item.StockQuantity ?? 10))</span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger small fw-bold ms-1">&bull; Tạm hết hàng</span>
-                                }
-                            </div>
-
-                            <div class="mb-3">
-                                <span class="pro-price text-danger fw-bold me-2">@string.Format("{0:N0}", item.Price) đ</span>
-                                <del class="text-muted small">@string.Format("{0:N0}", oldPrice) đ</del>
-                            </div>
-
-                            <div class="mt-auto d-flex gap-2">
-                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">
-                                    Chi tiết
-                                </a>
-                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
-                                {
-                                    <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
-                                        🛒 Thêm Vào Giỏ
-                                    </a>
-                                }
-                                else
-                                {
-                                    <button type="button" class="btn btn-secondary btn-sm flex-grow-1 rounded-pill" disabled>Hết hàng</button>
-                                }
-                            </div>
+                            <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3 copy-voucher-btn" data-code="@d.Code">
+                                Sao chép
+                            </button>
                         </div>
                     </div>
-                </div>
+                }
             }
-        </div>
-    }
-</div>
-
-<!-- 5. BANNER PHỤ QUẢNG CÁO CHÉO -->
-<div class="container my-5">
-    <div class="p-4 rounded-4 text-white d-flex flex-column flex-md-row justify-content-between align-items-center shadow-sm" style="background: linear-gradient(90deg, #232f3e 0%, #37475a 100%);">
-        <div>
-            <h4 class="fw-bold text-warning mb-1">🎟️ ƯU ĐÃI MÃ GIẢM GIÁ TRỰC TIẾP KHI THANH TOÁN</h4>
-            <p class="mb-0 small text-light">Hỗ trợ thanh toán COD và Chuyển khoản QR tự động. Cam kết hàng chính hãng 100%.</p>
-        </div>
-        <a href="@Url.Action("Index", "Cart")" class="btn btn-warning fw-bold text-dark px-4 py-2 rounded-pill mt-3 mt-md-0">
-            Đến Giỏ Hàng Ngay &rarr;
-        </a>
-    </div>
-</div>
-
-<!-- 6. PHÂN KHU THEO DANH MỤC (TẤT CẢ SẢN PHẨM CÒN LẠI CŨNG HIỆN RÕ CÒN HÀNG & GIẢM GIÁ) -->
-@if (Model.Count() > 8)
-{
-    <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-            <h4 class="fw-bold m-0 text-dark">🔥 Khám Phá Thêm Thiết Bị Âm Thanh</h4>
-            <a href="@Url.Action("Search", "Home")" class="text-danger text-decoration-none fw-bold small">Bộ lọc nâng cao &rarr;</a>
-        </div>
-
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            @foreach (var item in Model.Skip(8))
+            else
             {
-                string imgSrc = ResolveProductImage(item.ImageUrl);
-                decimal oldPrice = item.Price * 1.15m;
-
                 <div class="col">
-                    <div class="pro-card h-100 position-relative d-flex flex-column">
-                        <div class="badge-group">
-                            <span class="badge bg-danger">GIẢM 15%</span>
-                            @if (item.IsWireless == true)
-                            {
-                                <span class="badge bg-dark">Wireless</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Wired</span>
-                            }
+                    <div class="voucher-card bg-white rounded-3 p-3 d-flex justify-content-between align-items-center shadow-sm h-100">
+                        <div>
+                            <span class="badge bg-danger mb-1">ƯU ĐÃI HÈ 2026</span>
+                            <div class="fw-bold text-dark fs-6">Mã: <span class="text-primary">SUMMER2026</span></div>
+                            <div class="text-muted" style="font-size: 11.5px;">Áp dụng cho mọi đơn hàng thiết bị âm thanh</div>
                         </div>
-
-                        <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="pro-img-wrapper text-center p-3 d-block text-decoration-none">
-                            <img src="@imgSrc"
-                                 alt="@item.ProductName"
-                                 class="pro-img"
-                                 onerror="this.src='https://via.placeholder.com/300x300?text=Audio+Store';" />
-                        </a>
-
-                        <div class="pro-body d-flex flex-column flex-grow-1 p-3 pt-0">
-                            <div class="text-muted small mb-1">
-                                @(item.Brands != null ? item.Brands.BrandName : "AudioStore") &bull;
-                                @(item.Categories != null ? item.Categories.CategoryName : "Audio")
-                            </div>
-                            <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none">
-                                <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
-                            </a>
-
-                            <!-- DÒNG HIỂN THỊ SAO & CÒN HÀNG -->
-                            <div class="rating-stars mb-2">
-                                <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
-                                {
-                                    <span class="text-success small fw-bold ms-1">&bull; Còn hàng (@(item.StockQuantity ?? 10))</span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger small fw-bold ms-1">&bull; Tạm hết hàng</span>
-                                }
-                            </div>
-
-                            <div class="mb-3">
-                                <span class="pro-price text-danger fw-bold me-2">@string.Format("{0:N0}", item.Price) đ</span>
-                                <del class="text-muted small">@string.Format("{0:N0}", oldPrice) đ</del>
-                            </div>
-
-                            <div class="mt-auto d-flex gap-2">
-                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">
-                                    Chi tiết
-                                </a>
-                                @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
-                                {
-                                    <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
-                                        🛒 Thêm Vào Giỏ
-                                    </a>
-                                }
-                                else
-                                {
-                                    <button type="button" class="btn btn-secondary btn-sm flex-grow-1 rounded-pill" disabled>Hết hàng</button>
-                                }
-                            </div>
+                        <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3 copy-voucher-btn" data-code="SUMMER2026">
+                            Sao chép
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="voucher-card bg-white rounded-3 p-3 d-flex justify-content-between align-items-center shadow-sm h-100">
+                        <div>
+                            <span class="badge bg-primary mb-1">KHÁCH HÀNG MỚI</span>
+                            <div class="fw-bold text-dark fs-6">Mã: <span class="text-primary">WELCOME10</span></div>
+                            <div class="text-muted" style="font-size: 11.5px;">Nhập tại trang Checkout để kiểm tra ưu đãi</div>
                         </div>
+                        <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3 copy-voucher-btn" data-code="WELCOME10">
+                            Sao chép
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="voucher-card bg-white rounded-3 p-3 d-flex justify-content-between align-items-center shadow-sm h-100">
+                        <div>
+                            <span class="badge bg-success mb-1">FREESHIP 2H</span>
+                            <div class="fw-bold text-dark fs-6">Mã: <span class="text-primary">FREESHIP</span></div>
+                            <div class="text-muted" style="font-size: 11.5px;">Hỗ trợ giao nhanh nội thành TP.HCM</div>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3 copy-voucher-btn" data-code="FREESHIP">
+                            Sao chép
+                        </button>
                     </div>
                 </div>
             }
         </div>
     </div>
-}
 
-<style>
-    .hero-banner {
-        background: linear-gradient(135deg, #131921 0%, #232f3e 100%);
+    <!-- =========================================================================
+         6. LƯỚI SẢN PHẨM NỔI BẬT & KHUYẾN MÃI (CÓ TAB LỌC TỨC THÌ TẠI CHỖ)
+         ========================================================================= -->
+    <div id="products" class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h4 class="fw-bold m-0" style="color: #131921;">🎧 Sản Phẩm Nổi Bật & Khuyến Mãi</h4>
+
+        <!-- Tab lọc nhanh không cần tải lại trang -->
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-sm quick-tab-btn active" data-filter="all">Tất cả</button>
+            <button type="button" class="btn btn-sm quick-tab-btn" data-filter="wireless">📡 Không dây</button>
+            <button type="button" class="btn btn-sm quick-tab-btn" data-filter="wired">🔌 Có dây</button>
+            <button type="button" class="btn btn-sm quick-tab-btn" data-filter="under3m">💸 Dưới 3 triệu</button>
+            <button type="button" class="btn btn-sm quick-tab-btn" data-filter="premium">👑 Cao cấp (&gt;5tr)</button>
+            <a href="@Url.Action("Search", "Home")" class="text-danger text-decoration-none fw-bold small ms-2">
+                Xem tất cả (@allProducts.Count sản phẩm) &rarr;
+            </a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 mb-5" id="featuredProductGrid">
+        @foreach (var item in allProducts.Take(12))
+        {
+            string imgUrl = GetFirstProductImage(item.ImageUrl);
+            decimal oldPrice = Math.Round(item.Price * 1.15m, 0);
+            decimal savedAmount = oldPrice - item.Price;
+            int stock = item.StockQuantity ?? 0;
+            string brandName = item.Brands != null ? item.Brands.BrandName : "AudioStore";
+            bool wireless = item.IsWireless == true;
+
+            <div class="col product-filter-item"
+                 data-wireless="@(wireless ? "true" : "false")"
+                 data-price="@item.Price">
+                <div class="pro-card h-100 d-flex flex-column position-relative">
+                    <!-- Nhãn Giảm giá & Kết nối -->
+                    <div class="badge-top-left">
+                        <span class="badge bg-danger">GIẢM 15%</span>
+                        @if (wireless)
+                        {
+                            <span class="badge bg-dark">Wireless</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Wired</span>
+                        }
+                    </div>
+
+                    <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="pro-img-box text-center p-3 d-block">
+                        <img src="@Url.Content(imgUrl)" alt="@item.ProductName" class="pro-img" onerror="this.src='https://via.placeholder.com/250x250?text=AudioStore';" />
+                    </a>
+
+                    <div class="pro-body p-3 pt-2 d-flex flex-column flex-grow-1">
+                        <div class="text-muted small mb-1" style="font-size: 11.5px;">
+                            @brandName &bull; @(wireless ? "Không dây" : "Có dây")
+                        </div>
+
+                        <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none">
+                            <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
+                        </a>
+
+                        <div class="mb-2" style="font-size: 12px;">
+                            <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                            @if (stock > 0)
+                            {
+                                <span class="text-success fw-bold ms-1">&bull; Còn hàng (@stock)</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-bold ms-1">&bull; Hết hàng</span>
+                            }
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="d-flex align-items-baseline gap-2">
+                                <span class="text-danger fw-bold" style="font-size: 16px;">@string.Format("{0:N0} đ", item.Price)</span>
+                                <del class="text-muted" style="font-size: 12px;">@string.Format("{0:N0} đ", oldPrice)</del>
+                            </div>
+                            <div class="text-success small fw-semibold mb-3" style="font-size: 11.5px;">
+                                Tiết kiệm: @string.Format("{0:N0} đ", savedAmount)
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm rounded-pill fw-semibold px-3">
+                                    Chi tiết
+                                </a>
+                                @if (isAdmin)
+                                {
+                                    <button type="button" class="btn btn-secondary btn-sm rounded-pill fw-bold flex-grow-1" disabled title="Admin không được đặt hàng">
+                                        🔒 Admin
+                                    </button>
+                                }
+                                else if (stock <= 0)
+                                {
+                                    <button type="button" class="btn btn-secondary btn-sm rounded-pill fw-bold flex-grow-1" disabled>
+                                        Hết hàng
+                                    </button>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm rounded-pill fw-bold text-dark flex-grow-1">
+                                        🛒 Thêm vào giỏ
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- =========================================================================
+         7. CỤM 2 BANNER QUẢNG CÁO CHUYÊN ĐỀ GIỮA TRANG (DUAL PROMO BANNERS)
+         ========================================================================= -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="promo-mid-banner promo-marshall rounded-4 p-4 shadow-sm text-white d-flex flex-column justify-content-between h-100">
+                <div>
+                    <span class="badge bg-warning text-dark fw-bold mb-2">PHONG CÁCH VINTAGE & HI-FI</span>
+                    <h4 class="fw-bold mb-2">Tuyệt Tác Âm Thanh Marshall &amp; Harman Kardon</h4>
+                    <p class="small text-light opacity-75 mb-3">
+                        Nâng tầm không gian phòng khách và góc làm việc với chất âm ấm áp, thiết kế cổ điển sang trọng bậc nhất.
+                    </p>
+                </div>
+                <div>
+                    <a href="@Url.Action("Search", "Home", new { keyword = "Marshall" })" class="btn btn-warning btn-sm rounded-pill fw-bold px-4 text-dark">
+                        Khám phá ngay &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="promo-mid-banner promo-party rounded-4 p-4 shadow-sm text-white d-flex flex-column justify-content-between h-100">
+                <div>
+                    <span class="badge bg-danger fw-bold mb-2">BÙNG NỔ MỌI CUỘC VUI</span>
+                    <h4 class="fw-bold mb-2">Loa JBL PartyBox &amp; Tai Nghe Chống Ồn Sony</h4>
+                    <p class="small text-light opacity-75 mb-3">
+                        Công suất cực đại kèm đèn LED đồng bộ theo nhạc, chống nước IPX4 và công nghệ chống ồn chủ động ANC đỉnh cao.
+                    </p>
+                </div>
+                <div>
+                    <a href="@Url.Action("Search", "Home", new { keyword = "JBL" })" class="btn btn-light btn-sm rounded-pill fw-bold px-4 text-dark">
+                        Săn Deal JBL / Sony &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         8. KỆ CHUYÊN KHU: LOA BLUETOOTH & ÂM THANH GIA ĐÌNH NỔI BẬT
+         ========================================================================= -->
+    @if (speakerProducts.Any())
+    {
+        <div class="bg-white rounded-4 p-4 shadow-sm mb-5 border">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <div>
+                    <h5 class="fw-bold m-0 text-dark">🔊 Loa Bluetooth &amp; PartyBox Được Yêu Thích Nhất</h5>
+                    <small class="text-muted">Âm trầm uy lực, kết nối Bluetooth 5.3 ổn định cho cả trong nhà và dã ngoại</small>
+                </div>
+                <a href="@Url.Action("Search", "Home", new { keyword = "Loa" })" class="btn btn-outline-dark btn-sm rounded-pill fw-bold">
+                    Xem thêm loa &rarr;
+                </a>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+                @foreach (var item in speakerProducts)
+                {
+                    string imgUrl = GetFirstProductImage(item.ImageUrl);
+                    int stock = item.StockQuantity ?? 0;
+                    <div class="col">
+                        <div class="pro-card h-100 d-flex flex-column p-3">
+                            <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-center mb-2">
+                                <img src="@Url.Content(imgUrl)" alt="@item.ProductName" class="pro-img" style="max-height: 130px;" />
+                            </a>
+                            <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
+                            <div class="text-danger fw-bold mb-2">@string.Format("{0:N0} đ", item.Price)</div>
+                            <div class="mt-auto d-flex gap-2">
+                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1">Chi tiết</a>
+                                @if (!isAdmin && stock > 0)
+                                {
+                                    <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm rounded-pill fw-bold text-dark flex-grow-1">🛒 Thêm</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     }
 
-    .brand-bar {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 14px 20px;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
+  
+</div>
 
-    .brand-item {
-        font-weight: 800;
-        letter-spacing: 0.8px;
-        color: #333;
-        font-size: 14px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        transition: all 0.2s;
-    }
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // 1. Sao chép mã giảm giá 1 chạm
+        var copyBtns = document.querySelectorAll(".copy-voucher-btn");
+        copyBtns.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var code = this.getAttribute("data-code");
+                var currentBtn = this;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code);
+                }
+                currentBtn.textContent = "✔ Đã chép";
+                currentBtn.classList.remove("btn-warning");
+                currentBtn.classList.add("btn-success", "text-white");
+                setTimeout(function () {
+                    currentBtn.textContent = "Sao chép";
+                    currentBtn.classList.remove("btn-success", "text-white");
+                    currentBtn.classList.add("btn-warning");
+                }, 2000);
+            });
+        });
 
-        .brand-item:hover {
-            background-color: #ffbd00;
-            color: #111;
+        // 2. Đồng hồ đếm ngược Flash Sale
+        var countdownEl = document.getElementById("flashCountdown");
+        if (countdownEl) {
+            var totalSeconds = 8 * 3600 + 45 * 60 + 59;
+            setInterval(function () {
+                if (totalSeconds > 0) totalSeconds--;
+                var hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+                var mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+                var secs = String(totalSeconds % 60).padStart(2, '0');
+                countdownEl.textContent = hrs + " : " + mins + " : " + secs;
+            }, 1000);
         }
 
-    .pro-card {
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e6e6e6;
-        transition: all 0.25s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        // 3. Tab lọc nhanh sản phẩm ngay tại Trang chủ
+        var tabBtns = document.querySelectorAll(".quick-tab-btn");
+        var productItems = document.querySelectorAll(".product-filter-item");
+        tabBtns.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                tabBtns.forEach(function (b) { b.classList.remove("active"); });
+                this.classList.add("active");
+
+                var filterType = this.getAttribute("data-filter");
+                productItems.forEach(function (item) {
+                    var isWireless = item.getAttribute("data-wireless") === "true";
+                    var price = parseFloat(item.getAttribute("data-price")) || 0;
+                    var show = true;
+
+                    if (filterType === "wireless") show = isWireless;
+                    else if (filterType === "wired") show = !isWireless;
+                    else if (filterType === "under3m") show = price <= 3000000;
+                    else if (filterType === "premium") show = price >= 5000000;
+
+                    item.style.display = show ? "" : "none";
+                });
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Hero Banner */
+    .hero-banner-wrap {
+        background: linear-gradient(135deg, #131921 0%, #232f3e 60%, #1a2533 100%);
     }
 
-        .pro-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    .hero-glow-circle {
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        background: radial-gradient(circle, rgba(255,189,0,0.22) 0%, rgba(255,189,0,0) 70%);
+        top: -60px;
+        right: 8%;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Trust Bar */
+    .trust-card {
+        border: 1px solid #e6e8ec;
+        transition: transform 0.2s ease;
+    }
+
+        .trust-card:hover {
+            transform: translateY(-3px);
             border-color: #ffbd00;
         }
 
-    .badge-group {
+    .trust-icon {
+        font-size: 26px;
+        background: #fff8e1;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* Brand Bar */
+    .brand-pill {
+        text-decoration: none;
+        color: #232f3e;
+        font-weight: 800;
+        font-size: 13.5px;
+        padding: 7px 18px;
+        border-radius: 30px;
+        transition: all 0.2s;
+        letter-spacing: 0.5px;
+    }
+
+        .brand-pill:hover, .brand-pill.active {
+            background-color: #131921;
+            color: #ffbd00;
+        }
+
+    /* Voucher Station */
+    .voucher-station {
+        background: linear-gradient(120deg, #1f2937 0%, #131921 100%);
+        border-left: 5px solid #ffbd00;
+    }
+
+    .voucher-card {
+        border-left: 4px dashed #dc3545;
+    }
+
+    /* Quick Filter Tabs */
+    .quick-tab-btn {
+        background-color: #ffffff;
+        border: 1px solid #d5d9d9;
+        color: #232f3e;
+        border-radius: 20px;
+        font-weight: 600;
+        padding: 4px 14px;
+    }
+
+        .quick-tab-btn.active, .quick-tab-btn:hover {
+            background-color: #131921;
+            color: #ffbd00;
+            border-color: #131921;
+        }
+
+    /* Product Card */
+    .pro-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.22s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+        .pro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.09);
+            border-color: #ffbd00;
+        }
+
+    .badge-top-left {
         position: absolute;
         top: 10px;
         left: 10px;
         display: flex;
         gap: 5px;
-        z-index: 2;
+        z-index: 3;
     }
 
+        .badge-top-left .badge {
+            font-size: 10.5px;
+            padding: 4px 8px;
+        }
+
     .pro-img {
-        height: 160px;
+        height: 165px;
         width: 100%;
         object-fit: contain;
-        transition: transform 0.3s ease;
+        transition: transform 0.25s ease;
     }
 
     .pro-card:hover .pro-img {
-        transform: scale(1.06);
+        transform: scale(1.04);
     }
 
     .pro-title {
         font-weight: 700;
-        color: #111;
-        font-size: 15px;
+        color: #131921;
+        font-size: 14.5px;
     }
 
-        .pro-title:hover {
-            color: #e47911;
+    /* Mid Promo Banners */
+    .promo-marshall {
+        background: linear-gradient(135deg, #1b1b1b 0%, #3a2e21 100%);
+        border: 1px solid rgba(255,189,0,0.3);
+    }
+
+    .promo-party {
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* News Home Card */
+    .news-home-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .news-home-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12) !important;
         }
 
-    .pro-price {
-        font-size: 16px;
+    .news-title-clamp {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 40px;
+    }
+
+    .news-summary-clamp {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 </style>

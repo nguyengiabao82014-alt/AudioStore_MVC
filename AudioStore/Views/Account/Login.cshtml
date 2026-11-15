@@ -1,38 +1,66 @@
-﻿@{
-    ViewBag.Title = "Đăng nhập";
+﻿
+@{
+    ViewBag.Title = "Đăng Nhập - AudioStore";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5" style="max-width: 400px;">
-    @* Thay thế thẻ <form> cứng bằng cú pháp chuẩn của ASP.NET MVC *@
-    @using (Html.BeginForm("Login", "Account", FormMethod.Post))
-    {
-        @* BẮT BUỘC: Mã bảo mật chống giả mạo request *@
-        @Html.AntiForgeryToken()
+<div class="d-flex justify-content-center align-items-center py-5" style="min-height: 85vh; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%);">
+    <div class="card border-0 rounded-4 shadow-lg p-4 p-md-5 bg-white position-relative" style="width: 100%; max-width: 440px;">
 
-        <fieldset class="border p-4 rounded shadow-sm bg-white">
-            <legend class="w-auto px-2 font-weight-bold text-danger">Đăng Nhập</legend>
+        <!-- Brand Title & Tab Switcher -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark tracking-wider mb-1" style="letter-spacing: 1px;">Audio<span class="text-danger">Store</span></h2>
+            <p class="text-muted small mb-4">Premium Audio & Equipment</p>
 
-            @* Hiển thị cảnh báo lỗi (sai pass/sai tài khoản) nếu có *@
-            @if (ViewBag.Error != null)
+            <!-- Tab chuyển đổi qua lại giữa Đăng nhập và Đăng ký -->
+            <div class="d-flex justify-content-center border-bottom pb-2 mb-4">
+                <span class="fw-bold text-dark pb-2 border-bottom border-dark border-3 px-3">ĐĂNG NHẬP</span>
+                <a href="@Url.Action("Register", "Account")" class="fw-semibold text-muted pb-2 px-3 text-decoration-none">ĐĂNG KÝ</a>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "needs-validation" }))
+        {
+            @Html.AntiForgeryToken()
+
+            if (ViewBag.Error != null)
             {
-                <div class="alert alert-danger" style="font-size: 14px;">
-                    @ViewBag.Error
+                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger py-2 px-3 small mb-3 rounded-3 d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <div>@ViewBag.Error</div>
                 </div>
             }
 
-            <div class="form-group mb-3">
-                <label>Email hoặc Tên đăng nhập</label>
-                @* Đã đổi name="username" thành name="UsernameOrEmail" cho khớp tham số Controller *@
-                <input type="text" name="UsernameOrEmail" class="form-control" required placeholder="Nhập tài khoản..." />
+            <!-- Ô Email / Tên đăng nhập -->
+            <div class="mb-3">
+                <label class="form-label text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">EMAIL HOẶC TÊN ĐĂNG NHẬP</label>
+                <input type="text" name="UsernameOrEmail" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Nhập tài khoản của quý khách..." autocomplete="off" style="font-size: 0.9rem;" />
             </div>
 
-            <div class="form-group mb-3">
-                <label>Mật khẩu</label>
-                @* Đổi name="password" thành name="Password" (viết hoa chữ P cho chuẩn) *@
-                <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
+            <!-- Ô Mật khẩu -->
+            <div class="mb-4">
+                <label class="form-label text-secondary fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">MẬT KHẨU</label>
+                <input type="password" name="Password" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Mật khẩu của quý khách..." style="font-size: 0.9rem;" />
             </div>
 
-            <button type="submit" class="btn btn-danger w-100">Đăng Nhập</button>
-        </fieldset>
-    }
+            <!-- Nút Đăng Nhập -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn text-white py-3 fw-bold rounded-3 shadow-sm" style="background-color: #111827; transition: all 0.2s ease; font-size: 0.9rem;">
+                    Đăng Nhập
+                </button>
+            </div>
+        }
+    </div>
 </div>
+
+<style>
+    .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.2) !important;
+    }
+
+    .btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+</style>

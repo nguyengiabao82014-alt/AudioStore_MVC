@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Web.Mvc;
-using AudioStore.Models; // Thay đổi theo namespace Models của bạn
+using AudioStore.Models;
 
 namespace AudioStore.Controllers
 {
@@ -22,14 +24,12 @@ namespace AudioStore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Kiểm tra Mật khẩu nhập lại
                 if (Password != ConfirmPassword)
                 {
                     ViewBag.Error = "Mật khẩu xác nhận không khớp!";
                     return View();
                 }
 
-                // Kiểm tra trùng lặp Email (hoặc Username)
                 var checkEmail = db.Users.FirstOrDefault(u => u.Email == Email || u.Username == Email);
                 if (checkEmail != null)
                 {
@@ -37,14 +37,13 @@ namespace AudioStore.Controllers
                     return View();
                 }
 
-                // Tạo User mới
                 Users newUser = new Users
                 {
                     FullName = FullName,
                     Email = Email,
-                    Username = Email, // Lấy luôn Email làm Username
+                    Username = Email,
                     Password = Password,
-                    RoleID = 2, // 2 là Customer dựa theo DB của bạn
+                    RoleID = 2, // 2 = Customer
                     CreatedAt = DateTime.Now
                 };
 
@@ -75,17 +74,19 @@ namespace AudioStore.Controllers
 
                 if (user != null)
                 {
-                    // Lưu thông tin vào Session
                     Session["User"] = user;
+                    Session["UserID"] = user.UserID;
                     Session["FullName"] = user.FullName;
                     Session["RoleID"] = user.RoleID;
 
-                    // Phân quyền chuyển hướng
-                    if (user.RoleID == 1) // 1 là Admin
+                    if (user.RoleID == 1) // 1 = Admin
                     {
+                        // Xóa giỏ hàng nếu có vì Admin không mua hàng
+                        Session["Cart"] = null;
+                        Session["CheckoutNow"] = null;
                         return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                     }
-                    else // 2 là Customer
+                    else // 2 = Customer
                     {
                         return RedirectToAction("Index", "Home");
                     }
@@ -99,12 +100,11 @@ namespace AudioStore.Controllers
         // 3. ĐĂNG XUẤT
         public ActionResult Logout()
         {
-            Session["Cart"] = null; // Xóa giỏ hàng khi đăng xuất
-            Session.Clear(); // Xóa toàn bộ Session
+            Session.Clear();
             return RedirectToAction("Index", "Home");
         }
 
-        // 4. XEM LỊCH SỬ ĐƠN HÀNG (BỔ SUNG CHO NÚT "XEM LỊCH SỬ ĐƠN HÀNG")
+        // 4. LỊCH SỬ ĐƠN HÀNG CỦA NGƯỜI MUA
         public ActionResult OrderHistory()
         {
             if (Session["User"] == null)
@@ -112,23 +112,46 @@ namespace AudioStore.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            int currentUserId = 0;
-            if (Session["User"] is Users loggedInUser)
-            {
-                currentUserId = loggedInUser.UserID;
-            }
-            else if (Session["UserID"] != null)
-            {
-                currentUserId = Convert.ToInt32(Session["UserID"]);
-            }
+            var currentUser = Session["User"] as Users;
+            int userId = currentUser != null ? currentUser.UserID : Convert.ToInt32(Session["UserID"]);
 
-            // Lấy danh sách đơn hàng của đúng user đang đăng nhập, sắp xếp mới nhất lên đầu
             var orders = db.Orders
-                           .Where(o => o.UserID == currentUserId)
-                           .OrderByDescending(o => o.OrderDate)
-                           .ToList();
+                .Include(o => o.OrderDetails)
+                .Where(o => o.UserID == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
 
             return View(orders);
+        }
+
+        // 5. XEM CHI TIẾT ĐƠN HÀNG ĐÃ ĐẶT (PHÍA NGƯỜI MUA)
+        public ActionResult OrderDetails(int? id)
+        {
+            if (Session["User"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var currentUser = Session["User"] as Users;
+            int userId = currentUser != null ? currentUser.UserID : Convert.ToInt32(Session["UserID"]);
+
+            // Chỉ cho phép người mua xem đúng đơn hàng của chính mình
+            var order = db.Orders
+                .Include(o => o.OrderDetails.Select(od => od.Products))
+                .Include(o => o.Users)
+                .FirstOrDefault(o => o.OrderID == id.Value && o.UserID == userId);
+
+            if (order == null)
+            {
+                return HttpNotFound("Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.");
+            }
+
+            return View(order);
         }
 
         protected override void Dispose(bool disposing)

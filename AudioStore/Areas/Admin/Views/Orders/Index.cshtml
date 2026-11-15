@@ -1,0 +1,115 @@
+﻿@model IEnumerable<AudioStore.Models.Orders>
+
+@{
+    ViewBag.Title = "Quản lý tất cả đơn hàng";
+    string currentStatus = ViewBag.CurrentStatus as string ?? "";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">🧾 Quản lý tất cả đơn hàng</h3>
+        <p class="text-muted small mb-0">Xem và chỉnh sửa đơn hàng của mọi người dùng trong hệ thống.</p>
+    </div>
+    <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="btn btn-outline-secondary fw-bold">
+        ← Về Dashboard
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success fw-bold shadow-sm">
+        ✔ @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- BỘ LỌC TRẠNG THÁI ĐƠN HÀNG -->
+<div class="mb-3 d-flex flex-wrap gap-2">
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "" })" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-dark fw-bold" : "btn-outline-dark")">
+        Tất cả
+    </a>
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Pending" })" class="btn btn-sm @(currentStatus == "Pending" ? "btn-warning fw-bold text-dark" : "btn-outline-secondary")">
+        Chờ xử lý (Pending)
+    </a>
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Confirmed" })" class="btn btn-sm @(currentStatus == "Confirmed" ? "btn-info fw-bold text-dark" : "btn-outline-secondary")">
+        Đã xác nhận (Confirmed)
+    </a>
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Shipping" })" class="btn btn-sm @(currentStatus == "Shipping" ? "btn-primary fw-bold" : "btn-outline-secondary")">
+        Đang giao hàng (Shipping)
+    </a>
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Completed" })" class="btn btn-sm @(currentStatus == "Completed" ? "btn-success fw-bold" : "btn-outline-secondary")">
+        Đã giao (Completed)
+    </a>
+    <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Cancelled" })" class="btn btn-sm @(currentStatus == "Cancelled" ? "btn-danger fw-bold" : "btn-outline-secondary")">
+        Đã hủy (Cancelled)
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="p-5 text-center text-muted">
+                Không có đơn hàng nào phù hợp.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-3">Mã ĐH</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Địa chỉ nhận hàng</th>
+                            <th>Thanh toán</th>
+                            <th class="text-center">Số SP</th>
+                            <th class="text-end">Thành tiền</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center pe-3">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string badgeClass = "bg-secondary";
+                            string statusLabel = item.Status ?? "Pending";
+
+                            if (statusLabel == "Pending" || statusLabel == "Chờ xử lý") { badgeClass = "bg-warning text-dark"; statusLabel = "Chờ xử lý"; }
+                            else if (statusLabel == "Confirmed" || statusLabel == "Đã xác nhận") { badgeClass = "bg-info text-dark"; statusLabel = "Đã xác nhận"; }
+                            else if (statusLabel == "Shipping" || statusLabel == "Đang giao hàng") { badgeClass = "bg-primary"; statusLabel = "Đang giao hàng"; }
+                            else if (statusLabel == "Completed" || statusLabel == "Đã giao") { badgeClass = "bg-success"; statusLabel = "Đã giao"; }
+                            else if (statusLabel == "Cancelled" || statusLabel == "Đã hủy") { badgeClass = "bg-danger"; statusLabel = "Đã hủy"; }
+
+                            int totalQty = item.OrderDetails != null ? item.OrderDetails.Sum(od => od.Quantity) : 0;
+
+                            <tr>
+                                <td class="ps-3 fw-bold text-primary">#@item.OrderID</td>
+                                <td>
+                                    <div class="fw-bold">@(item.Users != null ? item.Users.FullName : "User ID: " + item.UserID)</div>
+                                    <small class="text-muted">@(item.Users != null ? item.Users.Email : "")</small>
+                                </td>
+                                <td>@(item.OrderDate.HasValue ? item.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
+                                <td style="max-width: 240px;" class="text-truncate" title="@item.ShippingAddress">@item.ShippingAddress</td>
+                                <td>@(item.PaymentMethod == "BankTransfer" ? "Chuyển khoản" : "COD")</td>
+                                <td class="text-center fw-semibold">@totalQty</td>
+                                <td class="text-end fw-bold text-danger">@string.Format("{0:N0} đ", item.FinalAmount)</td>
+                                <td class="text-center">
+                                    <span class="badge @badgeClass px-2 py-1">@statusLabel</span>
+                                </td>
+                                <td class="text-center pe-3">
+                                    <a href="@Url.Action("Edit", "Orders", new { area = "Admin", id = item.OrderID })" class="btn btn-sm btn-warning fw-bold text-dark">
+                                        ✏️ Chỉnh sửa
+                                    </a>
+                                    <a href="@Url.Action("Details", "Orders", new { area = "Admin", id = item.OrderID })" class="btn btn-sm btn-info fw-bold text-dark">
+                                        👁️ Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,180 @@
+﻿@model AudioStore.Models.Orders
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID + " - Audio Store";
+
+    string badgeClass = "bg-secondary";
+    string statusText = Model.Status ?? "Pending";
+
+    if (statusText == "Pending" || statusText == "Chờ xử lý")
+    {
+        badgeClass = "bg-warning text-dark";
+        statusText = "Chờ xử lý";
+    }
+    else if (statusText == "Confirmed" || statusText == "Đã xác nhận")
+    {
+        badgeClass = "bg-info text-dark";
+        statusText = "Đã xác nhận";
+    }
+    else if (statusText == "Shipping" || statusText == "Đang giao" || statusText == "Đang giao hàng")
+    {
+        badgeClass = "bg-primary";
+        statusText = "Đang giao hàng";
+    }
+    else if (statusText == "Completed" || statusText == "Đã giao" || statusText == "Hoàn thành")
+    {
+        badgeClass = "bg-success";
+        statusText = "Đã giao thành công";
+    }
+    else if (statusText == "Cancelled" || statusText == "Đã hủy")
+    {
+        badgeClass = "bg-danger";
+        statusText = "Đã hủy";
+    }
+
+    decimal discountAmount = Model.TotalAmount - Model.FinalAmount;
+    if (discountAmount < 0) { discountAmount = 0; }
+}
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold m-0" style="color: #232f3e;">🧾 Chi tiết đơn hàng #@Model.OrderID</h3>
+            <small class="text-muted">Ngày đặt: @(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</small>
+        </div>
+        <a href="@Url.Action("OrderHistory", "Account")" class="btn btn-outline-dark fw-bold">
+            ← Quay lại lịch sử đơn hàng
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- CỘT TRÁI: DANH SÁCH SẢN PHẨM TRONG ĐƠN -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="fw-bold m-0">Danh sách sản phẩm đã đặt</h5>
+                    <span class="badge @badgeClass fs-6 px-3 py-2">@statusText</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Sản phẩm</th>
+                                    <th class="text-center">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end pe-4">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+                                {
+                                    foreach (var detail in Model.OrderDetails)
+                                    {
+                                        string imgUrl = "/Content/Images/no-image.png";
+                                        string prodName = "Sản phẩm #" + detail.ProductID;
+
+                                        if (detail.Products != null)
+                                        {
+                                            prodName = detail.Products.ProductName;
+                                            if (!string.IsNullOrWhiteSpace(detail.Products.ImageUrl))
+                                            {
+                                                var parts = detail.Products.ImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                                                if (parts.Length > 0)
+                                                {
+                                                    string raw = parts[0].Trim();
+                                                    if (!raw.StartsWith("http") && !raw.Contains("."))
+                                                    {
+                                                        raw += ".webp";
+                                                    }
+                                                    if (!raw.StartsWith("http") && !raw.StartsWith("/") && !raw.StartsWith("~"))
+                                                    {
+                                                        raw = "/Content/Images/products/" + raw;
+                                                    }
+                                                    imgUrl = raw;
+                                                }
+                                            }
+                                        }
+
+                                        decimal lineTotal = detail.UnitPrice * detail.Quantity;
+                                        <tr>
+                                            <td class="ps-4 py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <img src="@Url.Content(imgUrl)" alt="@prodName" class="img-thumbnail me-3" style="width: 65px; height: 65px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/65';" />
+                                                    <div>
+                                                        <a href="@Url.Action("Details", "Home", new { id = detail.ProductID })" class="fw-bold text-dark text-decoration-none">
+                                                            @prodName
+                                                        </a>
+                                                        <div class="text-muted small">Mã SP: #@detail.ProductID</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">@string.Format("{0:N0} đ", detail.UnitPrice)</td>
+                                            <td class="text-center fw-bold">x @detail.Quantity</td>
+                                            <td class="text-end pe-4 fw-bold text-danger">@string.Format("{0:N0} đ", lineTotal)</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: THÔNG TIN NHẬN HÀNG & TỔNG KẾT THANH TOÁN -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold m-0">📍 Thông tin nhận hàng</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Người đặt:</strong>
+                        @(Model.Users != null ? Model.Users.FullName : (Session["FullName"] != null ? Session["FullName"].ToString() : "Khách hàng"))
+                    </p>
+                    @if (Model.Users != null && !string.IsNullOrEmpty(Model.Users.Email))
+                    {
+                        <p class="mb-2"><strong>Email:</strong> @Model.Users.Email</p>
+                    }
+                    @if (Model.Users != null && !string.IsNullOrEmpty(Model.Users.Phone))
+                    {
+                        <p class="mb-2"><strong>Số điện thoại:</strong> @Model.Users.Phone</p>
+                    }
+                    <p class="mb-2">
+                        <strong>Phương thức thanh toán:</strong>
+                        @(Model.PaymentMethod == "BankTransfer" ? "Chuyển khoản ngân hàng" : "Thanh toán khi nhận hàng (COD)")
+                    </p>
+                    <hr />
+                    <p class="mb-1 fw-bold">Địa chỉ giao hàng:</p>
+                    <div class="p-2 bg-light rounded border small">
+                        @Model.ShippingAddress
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="background-color: #f8f9fa;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">💰 Tổng kết thanh toán</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tổng tiền hàng:</span>
+                        <span class="fw-semibold">@string.Format("{0:N0} đ", Model.TotalAmount)</span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.DiscountCode) || discountAmount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Giảm giá @(!string.IsNullOrEmpty(Model.DiscountCode) ? "(" + Model.DiscountCode + ")" : ""):</span>
+                            <span class="fw-bold">-@string.Format("{0:N0} đ", discountAmount)</span>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between fs-5 border-top pt-3 mt-2">
+                        <span class="fw-bold">THÀNH TIỀN:</span>
+                        <span class="fw-bold text-danger">@string.Format("{0:N0} VNĐ", Model.FinalAmount)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

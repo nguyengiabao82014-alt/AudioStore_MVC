@@ -1,277 +1,409 @@
 ﻿@model IEnumerable<AudioStore.Models.Products>
+
 @{
-    bool isPromoPage = Request.QueryString["isPromotion"] == "true";
-    ViewBag.Title = isPromoPage ? "Săn Khuyến Mãi Giá Sốc" : "Tìm kiếm & Lọc sản phẩm";
+    ViewBag.Title = "Tìm kiếm & Lọc sản phẩm - Audio Store";
     var categories = ViewBag.Categories as List<AudioStore.Models.Categories> ?? new List<AudioStore.Models.Categories>();
     var brands = ViewBag.Brands as List<AudioStore.Models.Brands> ?? new List<AudioStore.Models.Brands>();
+
+    string keyword = ViewBag.Keyword as string ?? "";
+    int? selectedCategoryId = ViewBag.CategoryId as int?;
+    int? selectedBrandId = ViewBag.BrandId as int?;
+    bool? selectedWireless = ViewBag.IsWireless as bool?;
+    decimal? minPrice = ViewBag.MinPrice as decimal?;
+    decimal? maxPrice = ViewBag.MaxPrice as decimal?;
+    string sortBy = (ViewBag.SortBy as string) ?? (ViewBag.SortOrder as string) ?? "";
+
+    bool isAdmin = Session["RoleID"] != null && Convert.ToInt32(Session["RoleID"]) == 1;
+    var productList = Model != null ? Model.ToList() : new List<AudioStore.Models.Products>();
+
+    string selectedCategoryName = selectedCategoryId.HasValue
+        ? categories.FirstOrDefault(c => c.CategoryID == selectedCategoryId.Value)?.CategoryName
+        : null;
+    string selectedBrandName = selectedBrandId.HasValue
+        ? brands.FirstOrDefault(b => b.BrandID == selectedBrandId.Value)?.BrandName
+        : null;
 }
 
 @functions {
-    public string ResolveProductImage(string rawImageUrl)
+    public string GetFirstProductImage(string rawImageUrl)
     {
         if (string.IsNullOrWhiteSpace(rawImageUrl))
-        {
-            return "https://via.placeholder.com/300x300?text=Audio+Store";
-        }
+            return "https://via.placeholder.com/300x300?text=AudioStore";
 
         var parts = rawImageUrl.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
-        {
-            return "https://via.placeholder.com/300x300?text=Audio+Store";
-        }
+            return "https://via.placeholder.com/300x300?text=AudioStore";
 
         string img = parts[0].Trim();
-        if (!img.Contains("."))
-        {
-            img += ".webp";
-        }
-
-        if (img.StartsWith("http") || img.StartsWith("/"))
-        {
+        if (img.StartsWith("http://") || img.StartsWith("https://"))
             return img;
-        }
-        if (img.StartsWith("~"))
-        {
-            return Url.Content(img);
-        }
 
-        return Url.Content("~/Content/Images/products/" + img);
+        if (!img.Contains("."))
+            img += ".webp";
+
+        if (img.StartsWith("~/"))
+            img = img.Substring(1);
+
+        if (!img.StartsWith("/"))
+            img = "/Content/Images/products/" + img;
+
+        return img;
     }
 }
 
 <div class="container my-4">
-    <!-- BANNER ĐẶC BIỆT KHI BẤM VÀO "KHUYẾN MÃI TỐT" TRÊN HEADER -->
-    @if (isPromoPage)
-    {
-        <div class="p-4 mb-4 rounded-4 text-white shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-center"
-             style="background: linear-gradient(135deg, #b31217 0%, #e52d27 100%);">
-            <div>
-                <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1 rounded-pill">⚡ FLASH SALE GIẢM ĐẾN 20%</span>
-                <h3 class="fw-bold mb-1">Chuyên Trang Săn Khuyến Mãi Thiết Bị Âm Thanh</h3>
-                <p class="mb-0 small text-light">
-                    Toàn bộ sản phẩm bên dưới đang được trợ giá trực tiếp. Đặc biệt: Nhập thêm mã <strong>SUMMER2026</strong> ở bước Thanh toán để được giảm chồng thêm tới <strong>200.000đ</strong>!
-                </p>
-            </div>
-            <div class="mt-3 mt-md-0 text-center bg-white text-dark p-3 rounded-3 shadow-sm" style="min-width: 210px;">
-                <div class="small text-muted fw-semibold">MÃ VOUCHER TẶNG THÊM</div>
-                <div class="fs-5 fw-bold text-danger my-1" style="letter-spacing: 1px;">SUMMER2026</div>
-                <span class="badge bg-success">Đang có hiệu lực</span>
-            </div>
-        </div>
-    }
 
-    <div class="row g-4">
-        <!-- CỘT TRÁI: BỘ LỌC CHI TIẾT -->
-        <div class="col-lg-3">
-            <div class="card border-0 shadow-sm p-3 bg-white sticky-top" style="top: 20px;">
-                <h5 class="fw-bold border-bottom pb-2 mb-3">🎛️ Bộ Lọc Sản Phẩm</h5>
-
-                <form action="@Url.Action("Search", "Home")" method="get">
-                    @if (isPromoPage)
-                    {
-                        <input type="hidden" name="isPromotion" value="true" />
-                    }
-
-                    <!-- 1. Từ khóa -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Từ khóa tìm kiếm</label>
-                        <input type="text" name="keyword" class="form-control form-control-sm"
-                               value="@ViewBag.Keyword" placeholder="Tên loa, tai nghe, micro..." />
+    <!-- =========================================================================
+         1. THANH BỘ LỌC NGANG THÔNG MINH & GỌN GÀNG (HORIZONTAL FILTER BAR)
+         ========================================================================= -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3 p-md-4">
+            <form action="@Url.Action("Search", "Home")" method="get" id="horizontalFilterForm">
+                <!-- HÀNG 1: CÁC TIÊU CHÍ LỌC CHÍNH NẰM NGANG -->
+                <div class="row g-2 align-items-end">
+                    <!-- Từ khóa -->
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label small fw-bold text-secondary mb-1">🔍 Từ khóa tìm kiếm</label>
+                        <input type="text" name="keyword" value="@keyword" class="form-control form-control-sm" placeholder="Tên loa, tai nghe, micro..." />
                     </div>
 
-                    <!-- 2. Loại danh mục -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Danh mục thiết bị</label>
-                        <select name="categoryId" class="form-select form-select-sm">
+                    <!-- Danh mục -->
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label small fw-bold text-secondary mb-1">📂 Danh mục thiết bị</label>
+                        <select name="categoryId" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="">-- Tất cả danh mục --</option>
-                            @foreach (var cat in categories)
+                            @foreach (var c in categories)
                             {
-                                <option value="@cat.CategoryID" @(ViewBag.SelectedCategory != null && (int)ViewBag.SelectedCategory == cat.CategoryID ? "selected" : "")>
-                                    @cat.CategoryName
-                                </option>
+                                <option value="@c.CategoryID" @(selectedCategoryId == c.CategoryID ? "selected" : "")>@c.CategoryName</option>
                             }
                         </select>
                     </div>
 
-                    <!-- 3. Thương hiệu (Hãng) -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Hãng sản xuất</label>
-                        <select name="brandId" class="form-select form-select-sm">
+                    <!-- Hãng sản xuất -->
+                    <div class="col-lg-2 col-md-4">
+                        <label class="form-label small fw-bold text-secondary mb-1">🏷️ Hãng sản xuất</label>
+                        <select name="brandId" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="">-- Tất cả hãng --</option>
-                            @foreach (var brand in brands)
+                            @foreach (var b in brands)
                             {
-                                <option value="@brand.BrandID" @(ViewBag.SelectedBrand != null && (int)ViewBag.SelectedBrand == brand.BrandID ? "selected" : "")>
-                                    @brand.BrandName
-                                </option>
+                                <option value="@b.BrandID" @(selectedBrandId == b.BrandID ? "selected" : "")>@b.BrandName</option>
                             }
                         </select>
                     </div>
 
-                    <!-- 4. Kết nối Có dây / Không dây -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Chuẩn kết nối</label>
-                        <select name="isWireless" class="form-select form-select-sm">
-                            <option value="">-- Tất cả kết nối --</option>
-                            <option value="true" @(ViewBag.IsWireless != null && (bool)ViewBag.IsWireless == true ? "selected" : "")>Không dây (Bluetooth / Wireless)</option>
-                            <option value="false" @(ViewBag.IsWireless != null && (bool)ViewBag.IsWireless == false ? "selected" : "")>Có dây (Wired / Studio)</option>
+                    <!-- Chuẩn kết nối -->
+                    <div class="col-lg-2 col-md-4">
+                        <label class="form-label small fw-bold text-secondary mb-1">📡 Chuẩn kết nối</label>
+                        <select name="isWireless" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">-- Mọi kết nối --</option>
+                            <option value="true" @(selectedWireless == true ? "selected" : "")>Không dây (Wireless)</option>
+                            <option value="false" @(selectedWireless == false ? "selected" : "")>Có dây (Wired)</option>
                         </select>
                     </div>
 
-                    <!-- 5. Khoảng giá tiền -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Khoảng giá (VNĐ)</label>
-                        <div class="input-group input-group-sm mb-2">
-                            <span class="input-group-text">Từ</span>
-                            <input type="number" name="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="0" min="0" step="100000" />
-                        </div>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text">Đến</span>
-                            <input type="number" name="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="50.000.000" min="0" step="100000" />
-                        </div>
-                    </div>
-
-                    <!-- 6. Sắp xếp -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Sắp xếp theo</label>
-                        <select name="sortOrder" class="form-select form-select-sm">
-                            <option value="" @(string.IsNullOrEmpty(ViewBag.SortOrder) ? "selected" : "")>Mới nhất</option>
-                            <option value="price_asc" @(ViewBag.SortOrder == "price_asc" ? "selected" : "")>Giá khuyến mãi: Thấp đến Cao</option>
-                            <option value="price_desc" @(ViewBag.SortOrder == "price_desc" ? "selected" : "")>Giá khuyến mãi: Cao xuống Thấp</option>
-                            <option value="name_asc" @(ViewBag.SortOrder == "name_asc" ? "selected" : "")>Tên: A - Z</option>
+                    <!-- Sắp xếp theo -->
+                    <div class="col-lg-2 col-md-4">
+                        <label class="form-label small fw-bold text-secondary mb-1">🔃 Sắp xếp theo</label>
+                        <select name="sortBy" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" @(string.IsNullOrEmpty(sortBy) ? "selected" : "")>Mới nhất</option>
+                            <option value="price_asc" @(sortBy == "price_asc" ? "selected" : "")>Giá: Thấp đến Cao</option>
+                            <option value="price_desc" @(sortBy == "price_desc" ? "selected" : "")>Giá: Cao đến Thấp</option>
+                            <option value="name_asc" @(sortBy == "name_asc" ? "selected" : "")>Tên: A - Z</option>
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-warning w-100 fw-bold text-dark mb-2">
-                        🔍 Áp dụng bộ lọc
-                    </button>
-                    <a href="@Url.Action("Search", "Home")" class="btn btn-outline-secondary btn-sm w-100">
-                        🔄 Xóa bộ lọc
-                    </a>
-                </form>
-            </div>
-        </div>
-
-        <!-- CỘT PHẢI: KẾT QUẢ HIỂN THỊ SẢN PHẨM KÈM KHUYẾN MÃI & CÒN HÀNG -->
-        <div class="col-lg-9">
-            <div class="bg-white p-3 rounded shadow-sm mb-3 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold m-0">
-                    @if (isPromoPage)
-                    {
-                        <span class="text-danger">🔥 Danh Sách Sản Phẩm Đang Giảm Giá</span>
-                    }
-                    else
-                    {
-                        <span>Kết quả lọc sản phẩm</span>
-                    }
-                    <span class="badge bg-dark ms-2">@Model.Count() thiết bị</span>
-                </h5>
-                <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-outline-dark">&larr; Về trang chủ</a>
-            </div>
-
-            @if (!Model.Any())
-            {
-                <div class="card border-0 shadow-sm p-5 text-center bg-white">
-                    <h5 class="text-danger fw-bold mb-2">Không tìm thấy thiết bị âm thanh nào phù hợp!</h5>
-                    <p class="text-muted mb-3">Hãy thử nới rộng khoảng giá hoặc xóa bớt điều kiện lọc bên cột trái.</p>
-                    <div>
-                        <a href="@Url.Action("Search", "Home")" class="btn btn-warning fw-bold px-4">Xem toàn bộ sản phẩm</a>
+                    <!-- Nút Lọc -->
+                    <div class="col-lg-1 col-md-12 d-grid">
+                        <button type="submit" class="btn btn-warning btn-sm fw-bold text-dark" title="Áp dụng bộ lọc">
+                            🔍 Lọc
+                        </button>
                     </div>
                 </div>
-            }
-            else
-            {
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                    @foreach (var item in Model)
-                    {
-                        string imgSrc = ResolveProductImage(item.ImageUrl);
-                        int discountPercent = isPromoPage ? 20 : 15;
-                        decimal originalPrice = item.Price * (100m + discountPercent) / 100m;
-                        decimal savedMoney = originalPrice - item.Price;
 
-                        <div class="col">
-                            <div class="card h-100 border-0 shadow-sm p-3 pro-search-card position-relative d-flex flex-column">
-                                <!-- NHÃN GIẢM GIÁ GÓC TRÊN -->
-                                <div style="position: absolute; top: 10px; left: 10px; z-index: 2;" class="d-flex gap-1">
-                                    <span class="badge bg-danger">GIẢM @discountPercent%</span>
-                                    @if (isPromoPage)
-                                    {
-                                        <span class="badge bg-warning text-dark">DEAL HOT</span>
-                                    }
-                                </div>
+                <!-- HÀNG 2: CHỌN NHANH MỨC GIÁ (1 CLICK) + NHẬP KHOẢNG GIÁ TÙY CHỈNH NGANG -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-3 border-top">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="small fw-bold text-secondary me-1">💰 Mức giá nhanh:</span>
+                        <button type="button" class="btn btn-xs price-preset-btn @(!minPrice.HasValue && !maxPrice.HasValue ? "active" : "")" data-min="" data-max="">
+                            Tất cả
+                        </button>
+                        <button type="button" class="btn btn-xs price-preset-btn @(minPrice == 0 && maxPrice == 2000000 ? "active" : "")" data-min="0" data-max="2000000">
+                            Dưới 2 triệu
+                        </button>
+                        <button type="button" class="btn btn-xs price-preset-btn @(minPrice == 2000000 && maxPrice == 5000000 ? "active" : "")" data-min="2000000" data-max="5000000">
+                            2 - 5 triệu
+                        </button>
+                        <button type="button" class="btn btn-xs price-preset-btn @(minPrice == 5000000 && maxPrice == 10000000 ? "active" : "")" data-min="5000000" data-max="10000000">
+                            5 - 10 triệu
+                        </button>
+                        <button type="button" class="btn btn-xs price-preset-btn @(minPrice == 10000000 && !maxPrice.HasValue ? "active" : "")" data-min="10000000" data-max="">
+                            Trên 10 triệu
+                        </button>
+                    </div>
 
-                                <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-center p-2 mt-3 d-block">
-                                    <img src="@imgSrc" alt="@item.ProductName"
-                                         style="height: 150px; width: 100%; object-fit: contain;"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=Audio+Store';" />
-                                </a>
-
-                                <div class="mt-2 d-flex flex-column flex-grow-1">
-                                    <div class="small text-muted mb-1">
-                                        @(item.Brands != null ? item.Brands.BrandName : "AudioStore") &bull;
-                                        @(item.IsWireless == true ? "Không dây" : "Có dây")
-                                    </div>
-
-                                    <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none text-dark">
-                                        <h6 class="fw-bold text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
-                                    </a>
-
-                                    <!-- DÒNG HIỂN THỊ SAO & CÒN HÀNG -->
-                                    <div class="mb-2" style="font-size: 13px;">
-                                        <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-                                        @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
-                                        {
-                                            <span class="text-success fw-bold ms-1">&bull; Còn hàng (@(item.StockQuantity ?? 10))</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-danger fw-bold ms-1">&bull; Tạm hết hàng</span>
-                                        }
-                                    </div>
-
-                                    <!-- HIỂN THỊ GIÁ GIẢM + GIÁ GỐC GẠCH CHÉO + TIẾT KIỆM -->
-                                    <div class="mb-3">
-                                        <div>
-                                            <span class="text-danger fw-bold fs-5 me-2">@string.Format("{0:N0}", item.Price) đ</span>
-                                            <del class="text-muted small">@string.Format("{0:N0}", originalPrice) đ</del>
-                                        </div>
-                                        <div class="small text-success fw-semibold">
-                                            Tiết kiệm: @string.Format("{0:N0}", savedMoney) đ
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-auto d-flex gap-2">
-                                        <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm flex-grow-1 rounded-pill fw-semibold">
-                                            Chi tiết
-                                        </a>
-                                        @if (!item.StockQuantity.HasValue || item.StockQuantity.Value > 0)
-                                        {
-                                            <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm flex-grow-1 rounded-pill fw-bold text-dark">
-                                                🛒 Thêm vào giỏ
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <button type="button" class="btn btn-secondary btn-sm flex-grow-1 rounded-pill" disabled>Hết hàng</button>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Nhập khoảng giá Từ - Đến nằm ngang gọn gàng -->
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="small text-muted">Hoặc nhập giá (VNĐ):</span>
+                        <div class="input-group input-group-sm" style="width: 145px;">
+                            <span class="input-group-text bg-light">Từ</span>
+                            <input type="number" id="minPriceInput" name="minPrice" value="@(minPrice.HasValue ? minPrice.Value.ToString("0") : "")" class="form-control" placeholder="0" min="0" step="100000" />
                         </div>
+                        <div class="input-group input-group-sm" style="width: 155px;">
+                            <span class="input-group-text bg-light">Đến</span>
+                            <input type="number" id="maxPriceInput" name="maxPrice" value="@(maxPrice.HasValue ? maxPrice.Value.ToString("0") : "")" class="form-control" placeholder="50.000.000" min="0" step="100000" />
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-sm fw-semibold px-3">Áp dụng giá</button>
+                        <a href="@Url.Action("Search", "Home")" class="btn btn-outline-secondary btn-sm">🔄 Xóa bộ lọc</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- DẢI HIỂN THỊ CÁC TIÊU CHÍ ĐANG LỌC (ACTIVE FILTER CHIPS) -->
+            @if (!string.IsNullOrWhiteSpace(keyword) || selectedCategoryId.HasValue || selectedBrandId.HasValue || selectedWireless.HasValue || minPrice.HasValue || maxPrice.HasValue)
+            {
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top">
+                    <span class="small fw-bold text-dark">Đang lọc theo:</span>
+
+                    @if (!string.IsNullOrWhiteSpace(keyword))
+                    {
+                        <a href="@Url.Action("Search", "Home", new { categoryId = selectedCategoryId, brandId = selectedBrandId, isWireless = selectedWireless, minPrice = minPrice, maxPrice = maxPrice, sortBy = sortBy })"
+                           class="badge rounded-pill bg-light text-dark border px-3 py-2 text-decoration-none">
+                            Từ khóa: "@keyword" <span class="text-danger fw-bold ms-1">&times;</span>
+                        </a>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedCategoryName))
+                    {
+                        <a href="@Url.Action("Search", "Home", new { keyword = keyword, brandId = selectedBrandId, isWireless = selectedWireless, minPrice = minPrice, maxPrice = maxPrice, sortBy = sortBy })"
+                           class="badge rounded-pill bg-light text-dark border px-3 py-2 text-decoration-none">
+                            Danh mục: @selectedCategoryName <span class="text-danger fw-bold ms-1">&times;</span>
+                        </a>
+                    }
+
+                    @if (!string.IsNullOrEmpty(selectedBrandName))
+                    {
+                        <a href="@Url.Action("Search", "Home", new { keyword = keyword, categoryId = selectedCategoryId, isWireless = selectedWireless, minPrice = minPrice, maxPrice = maxPrice, sortBy = sortBy })"
+                           class="badge rounded-pill bg-light text-dark border px-3 py-2 text-decoration-none">
+                            Hãng: @selectedBrandName <span class="text-danger fw-bold ms-1">&times;</span>
+                        </a>
+                    }
+
+                    @if (selectedWireless.HasValue)
+                    {
+                        <a href="@Url.Action("Search", "Home", new { keyword = keyword, categoryId = selectedCategoryId, brandId = selectedBrandId, minPrice = minPrice, maxPrice = maxPrice, sortBy = sortBy })"
+                           class="badge rounded-pill bg-light text-dark border px-3 py-2 text-decoration-none">
+                            Kết nối: @(selectedWireless.Value ? "Không dây (Wireless)" : "Có dây (Wired)") <span class="text-danger fw-bold ms-1">&times;</span>
+                        </a>
+                    }
+
+                    @if (minPrice.HasValue || maxPrice.HasValue)
+                    {
+                        <a href="@Url.Action("Search", "Home", new { keyword = keyword, categoryId = selectedCategoryId, brandId = selectedBrandId, isWireless = selectedWireless, sortBy = sortBy })"
+                           class="badge rounded-pill bg-light text-dark border px-3 py-2 text-decoration-none">
+                            Giá: @(minPrice.HasValue ? string.Format("{0:N0}đ", minPrice.Value) : "0đ") - @(maxPrice.HasValue ? string.Format("{0:N0}đ", maxPrice.Value) : "Trở lên")
+                            <span class="text-danger fw-bold ms-1">&times;</span>
+                        </a>
                     }
                 </div>
             }
         </div>
     </div>
+
+    <!-- =========================================================================
+         2. TIÊU ĐỀ KẾT QUẢ & LƯỚI SẢN PHẨM 4 CỘT RỘNG RÃI
+         ========================================================================= -->
+    <div class="bg-white rounded-3 shadow-sm px-4 py-3 mb-4 d-flex justify-content-between align-items-center border">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="fw-bold m-0 text-dark">Kết quả lọc sản phẩm</h5>
+            <span class="badge bg-dark rounded-pill px-3 py-2">@productList.Count thiết bị</span>
+        </div>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-sm fw-semibold">
+            &larr; Về trang chủ
+        </a>
+    </div>
+
+    @if (!productList.Any())
+    {
+        <div class="bg-white rounded-4 shadow-sm p-5 text-center border">
+            <div class="fs-1 mb-2">🔍</div>
+            <h5 class="fw-bold text-dark">Không tìm thấy thiết bị âm thanh phù hợp</h5>
+            <p class="text-muted small mb-3">Bạn hãy thử nới rộng khoảng giá hoặc xóa bớt tiêu chí lọc để xem nhiều sản phẩm hơn nhé.</p>
+            <a href="@Url.Action("Search", "Home")" class="btn btn-warning fw-bold text-dark px-4 rounded-pill">
+                🔄 Xem tất cả sản phẩm
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            @foreach (var item in productList)
+            {
+                string imgUrl = GetFirstProductImage(item.ImageUrl);
+                decimal oldPrice = Math.Round(item.Price * 1.15m, 0);
+                decimal savedAmount = oldPrice - item.Price;
+                int stock = item.StockQuantity ?? 0;
+                string brandName = item.Brands != null ? item.Brands.BrandName : "AudioStore";
+                bool wireless = item.IsWireless == true;
+
+                <div class="col">
+                    <div class="pro-card h-100 d-flex flex-column position-relative">
+                        <div class="badge-top-left">
+                            <span class="badge bg-danger">GIẢM 15%</span>
+                            @if (wireless)
+                            {
+                                <span class="badge bg-dark">Wireless</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Wired</span>
+                            }
+                        </div>
+
+                        <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="pro-img-box text-center p-3 d-block">
+                            <img src="@Url.Content(imgUrl)" alt="@item.ProductName" class="pro-img" onerror="this.src='https://via.placeholder.com/250x250?text=AudioStore';" />
+                        </a>
+
+                        <div class="pro-body p-3 pt-2 d-flex flex-column flex-grow-1">
+                            <div class="text-muted small mb-1" style="font-size: 11.5px;">
+                                @brandName &bull; @(wireless ? "Không dây" : "Có dây")
+                            </div>
+
+                            <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="text-decoration-none">
+                                <h6 class="pro-title text-truncate mb-1" title="@item.ProductName">@item.ProductName</h6>
+                            </a>
+
+                            <div class="mb-2" style="font-size: 12px;">
+                                <span class="text-warning">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                                @if (stock > 0)
+                                {
+                                    <span class="text-success fw-bold ms-1">&bull; Còn hàng (@stock)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold ms-1">&bull; Hết hàng</span>
+                                }
+                            </div>
+
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-baseline gap-2">
+                                    <span class="text-danger fw-bold" style="font-size: 16px;">@string.Format("{0:N0} đ", item.Price)</span>
+                                    <del class="text-muted" style="font-size: 12px;">@string.Format("{0:N0} đ", oldPrice)</del>
+                                </div>
+                                <div class="text-success small fw-semibold mb-3" style="font-size: 11.5px;">
+                                    Tiết kiệm: @string.Format("{0:N0} đ", savedAmount)
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="@Url.Action("Details", "Home", new { id = item.ProductID })" class="btn btn-outline-dark btn-sm rounded-pill fw-semibold px-3">
+                                        Chi tiết
+                                    </a>
+                                    @if (isAdmin)
+                                    {
+                                        <button type="button" class="btn btn-secondary btn-sm rounded-pill fw-bold flex-grow-1" disabled title="Admin không được đặt hàng">
+                                            🔒 Admin
+                                        </button>
+                                    }
+                                    else if (stock <= 0)
+                                    {
+                                        <button type="button" class="btn btn-secondary btn-sm rounded-pill fw-bold flex-grow-1" disabled>
+                                            Hết hàng
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductID })" class="btn btn-warning btn-sm rounded-pill fw-bold text-dark flex-grow-1">
+                                            🛒 Thêm vào giỏ
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var presetBtns = document.querySelectorAll(".price-preset-btn");
+        var minInput = document.getElementById("minPriceInput");
+        var maxInput = document.getElementById("maxPriceInput");
+        var form = document.getElementById("horizontalFilterForm");
+
+        presetBtns.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var minVal = this.getAttribute("data-min");
+                var maxVal = this.getAttribute("data-max");
+                if (minInput) minInput.value = minVal;
+                if (maxInput) maxInput.value = maxVal;
+                if (form) form.submit();
+            });
+        });
+    });
+</script>
+
 <style>
-    .pro-search-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .price-preset-btn {
+        background-color: #f4f6f8;
+        border: 1px solid #d5d9d9;
+        color: #232f3e;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.15s;
     }
 
-        .pro-search-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
-            border: 1px solid #ffbd00 !important;
+        .price-preset-btn:hover, .price-preset-btn.active {
+            background-color: #131921;
+            color: #ffbd00;
+            border-color: #131921;
         }
+
+    .pro-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.22s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+        .pro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.09);
+            border-color: #ffbd00;
+        }
+
+    .badge-top-left {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        gap: 5px;
+        z-index: 3;
+    }
+
+        .badge-top-left .badge {
+            font-size: 10.5px;
+            padding: 4px 8px;
+        }
+
+    .pro-img {
+        height: 165px;
+        width: 100%;
+        object-fit: contain;
+        transition: transform 0.25s ease;
+    }
+
+    .pro-card:hover .pro-img {
+        transform: scale(1.04);
+    }
+
+    .pro-title {
+        font-weight: 700;
+        color: #131921;
+        font-size: 14.5px;
+    }
 </style>
