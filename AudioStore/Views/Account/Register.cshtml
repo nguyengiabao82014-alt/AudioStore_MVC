@@ -8,7 +8,7 @@
 
         <!-- Brand Title & Tab Switcher -->
         <div class="text-center mb-4">
-            <h2 class="fw-bold text-dark tracking-wider mb-1" style="letter-spacing: 1px;">Audio<span class="text-danger">Store</span></h2>
+            <h2 class="fw-bold tracking-wider mb-1" style="color: #212529; letter-spacing: 1px;">Audio<span style="color: #FFBD00;">Store</span></h2>
             <p class="text-muted small mb-4">Premium Audio & Equipment</p>
 
             <!-- Tab chuyển đổi qua lại giữa Đăng nhập và Đăng ký -->
@@ -30,7 +30,7 @@
                 </div>
             }
 
-            <!-- Họ và tên (Lưu ý: Nếu Controller của bạn dùng tên biến khác như Name hoặc HoTen thì bạn đổi lại thuộc tính name cho khớp nhé) -->
+            <!-- Họ và tên -->
             <div class="mb-3">
                 <label class="form-label text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">HỌ VÀ TÊN</label>
                 <input type="text" name="FullName" class="form-control px-3 py-2.5 rounded-3 bg-light border-0 shadow-none" required placeholder="Nhập họ và tên của quý khách..." autocomplete="off" style="font-size: 0.9rem;" />
@@ -56,14 +56,13 @@
 
             <!-- Nút Đăng Ký -->
             <div class="d-grid mb-3">
-                <button type="submit" class="btn text-white py-3 fw-bold rounded-3 shadow-sm" style="background-color: #111827; transition: all 0.2s ease; font-size: 0.9rem;">
+                <button type="submit" class="btn py-3 fw-bold rounded-3 shadow-sm auth-btn" style="font-size: 0.9rem;">
                     Đăng Ký Tài Khoản
                 </button>
             </div>
 
-            <!-- Chuyển nhanh về trang đăng nhập -->
             <div class="text-center mt-3">
-                <p class="text-muted small mb-0">Đã có tài khoản trên hệ thống? <a href="@Url.Action("Login", "Account")" class="text-danger fw-bold text-decoration-none">Đăng nhập ngay</a></p>
+                <a href="@Url.Action("Index", "Home")" class="text-muted small text-decoration-none">← Quay lại trang chủ</a>
             </div>
         }
     </div>
@@ -72,11 +71,20 @@
 <style>
     .form-control:focus {
         background-color: #fff !important;
-        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.2) !important;
+        box-shadow: 0 0 0 2px rgba(255, 189, 0, 0.4) !important;
     }
 
-    .btn:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
+    .auth-btn {
+        background-color: #FFBD00;
+        color: #212529;
+        transition: all 0.3s ease;
+        border: 1px solid #FFBD00;
     }
+
+        .auth-btn:hover {
+            background-color: #f7ca00;
+            color: #212529;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(255, 189, 0, 0.3);
+        }
 </style>
